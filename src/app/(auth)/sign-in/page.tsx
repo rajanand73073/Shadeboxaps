@@ -1,0 +1,149 @@
+"use client";
+
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { useToast } from "@/hooks/use-toast";
+import { signInSchema } from "@/Schemas/signInSchema";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Loader2 } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { signIn, useSession } from "next-auth/react";
+import * as Z from "zod";
+
+const Page = () => {
+  const { data: session, status } = useSession();
+  console.log("session", session);
+
+  const router = useRouter();
+  const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Redirect authenticated users to the dashboard
+  // useEffect(() => {
+  //   if (status === "authenticated") {
+  //     router.replace("/dashboard");
+  //   }
+  // }, [status, router]);
+
+  const form = useForm({
+    resolver: zodResolver(signInSchema),
+    defaultValues: {
+      identifier: "",
+      password: "",
+    },
+  });
+
+  const onSubmit = async (data: Z.infer<typeof signInSchema>) => {
+    setIsSubmitting(true);
+
+    const result = await signIn("credentials", {
+      redirect: false,
+      identifier: data.identifier,
+      password: data.password,
+    });
+
+    setIsSubmitting(false);
+
+    if (result?.error) {
+      if (result.error === "CredentialsSignin") {
+        toast({
+          title: "Fail",
+          description: "Incorrect Username/email or password",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: result.error,
+          variant: "destructive",
+        });
+      }
+      return;
+    }
+
+    if (result?.url) {
+      toast({
+        title: "Success",
+        description: "Successfully signed in! Redirecting...",
+      });
+      router.replace(result.url);
+    }
+  };
+
+  return (
+    <div className="flex justify-center items-center min-h-screen bg-gray-300 dark:bg-black">
+      <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md dark:bg-gray-900">
+        <div className="text-center">
+          <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl mb-6">
+            Share Mystery Messages!
+          </h1>
+          <p className="mb-4">Sign in to start messaging</p>
+        </div>
+
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <FormField
+              control={form.control}
+              name="identifier"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="Email"
+                      {...field}
+                      onChange={(e) => field.onChange(e.target.value)}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="password"
+                      placeholder="Password"
+                      {...field}
+                      onChange={(e) => field.onChange(e.target.value)}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Please Wait
+                </>
+              ) : (
+                "Sign In"
+              )}
+            </Button>
+          </form>
+        </Form>
+      </div>
+    </div>
+  );
+};
+
+export default Page;
