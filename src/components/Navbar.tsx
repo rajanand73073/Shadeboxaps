@@ -37,9 +37,9 @@ const Navbar = () => {
   return (
     <nav className="p-4 md-6 shadow-md flex">
       <div className="container mx-auto flex  md:flex-row justify-between items-center">
-        <a href="#" className="text-xl font-bold mb-4 md:mb-0">
+        <Link href="/" className="text-xl font-bold mb-4 md:mb-0">
           ShadeBox
-        </a>
+        </Link>
 
         <div className="space-x-8 flex">
           <div className="space-x-5 flex ">
@@ -49,25 +49,17 @@ const Navbar = () => {
               </Button>
             </Link>
 
-            <Link href={"/sendMessage"}>
+            <Link href={"/SendMessage"}>
               <Button variant="link">
                 <span className="font-bold">Send Messages</span>
               </Button>
             </Link>
 
-            {/* <Link href={"/ExploreUsers"}>
-              <Button variant="link">
-                <span className="font-bold">Public Profiles</span>
-              </Button>
-            </Link> */}
-          
-
+   
 
 
 
           </div>
-          
-
           {Session ? (
             <>
             <DropdownMenu>

@@ -24,9 +24,7 @@ import {
 import { Button } from "./ui/button"
 import { Message } from "@/model/User.model"
 import { X } from "lucide-react"
-import { string } from "zod"
   
-
 
 type MessagCardProps = {
 message:Message,
@@ -34,15 +32,10 @@ onMessageDelete :(messageId:string)  =>void
 }
 
 
-
-
-
 const MessageCard = ({message,onMessageDelete}:MessagCardProps) => {
-
 const handleMessagedelete = ()=>{
   onMessageDelete(String(message._id))
 }
-
 
 
 
@@ -51,8 +44,8 @@ const handleMessagedelete = ()=>{
   <CardHeader>
   <div className="flex justify-between items-center">
 
-    <CardTitle>Card Title</CardTitle>
-    <CardDescription>{message.content}</CardDescription>
+    <CardTitle>Message</CardTitle>
+    <CardDescription></CardDescription>
     <AlertDialog>
     <AlertDialogTrigger asChild>
         <Button variant="destructive"><X className="w-5 h-5"/></Button>
@@ -74,15 +67,18 @@ const handleMessagedelete = ()=>{
 </div>
   </CardHeader>
   <CardContent>
-    <p>Card Content</p>
+    <p>{message.content}</p>
   </CardContent>
   <CardFooter>
-  
+  <input type="text" className="w-full p-2 border-solid outline-blue-500 border border-gray-300 rounded-sm" />
   </CardFooter>
 </Card>
-
   )
 }
+
+
+
+
 
 export default MessageCard
 

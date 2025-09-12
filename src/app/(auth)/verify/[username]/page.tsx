@@ -22,6 +22,8 @@ import { useParams, useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import * as Z from "zod";
+import { signIn } from "next-auth/react";
+
 
 const Verifyaccount = () => {
   const params = useParams<{ username: string }>();
@@ -51,7 +53,18 @@ const Verifyaccount = () => {
         description: response.data.message,
       });
 
-      router.replace(`/sign-in`);
+      const loginRes = await signIn("credentials", {
+        redirect: false,
+        identifier: params.username,
+        verifyCode: data.code,
+      });
+
+      console.log("Login response", loginRes);
+
+   if (loginRes && loginRes.ok) {
+    console.log("Login successful");
+     router.replace(`/dashboard?welcome=true`);
+   }
       setisSubmitting(false);
     } catch (error) {
       console.error("Error in signup of user", error);
@@ -68,8 +81,8 @@ const Verifyaccount = () => {
   };
 
   return (
-    <div className="flex justify-center items-center  min-h-screen bg-gray-300">
-      <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md">
+    <div className="flex justify-center items-center  min-h-screen bg-gray-300 dark:bg-black">
+      <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md dark:bg-gray-900">
         <div className="text-center">
           <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl mb-6">
             Verify Your Code

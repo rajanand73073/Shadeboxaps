@@ -12,25 +12,46 @@ import { Button } from "@/components/ui/button";
 import { Loader2, RefreshCcw } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import MessageCard from "@/components/messageCard";
+import { useSearchParams } from "next/navigation";
+import {Copy,Check}  from 'lucide-react';
 
 const Page = () => {
   const [Messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setisLoading] = useState(false);
   const [isSwitchLoading, setisSwitchLoading] = useState(false);
-
+  const searchParams = useSearchParams();
+  const welcome = searchParams.get('welcome') === 'true';
+  const [showPopup, setshowPopup] = useState(false);
   const { toast } = useToast();
+  const [copied, setCopied] = useState(false);
 
-  const handledeleteMessage = (messageId: string) => {
+  const handledeleteMessage = async (messageId: string) => {
     setMessages(Messages.filter((message) => message?._id !== messageId));
-  };
-
+    try {
+      const response =  await axios.post<ApiResponse>("/api/delete-messages", {
+        messageId
+      });
+      if (response.data.success) {
+        toast({
+          title: "Success",
+          description: "Message deleted successfully",
+        });
+      } 
+    } catch (error) {
+      const axiosError = error as AxiosError<ApiResponse>;
+      toast({
+        title: "Error deleting message",
+        description: axiosError.response?.data.message,
+        variant: "destructive",
+      });
+    }
+  }
   const form = useForm();
 
   const { register, watch, setValue } = form;
 
   const acceptMessages = watch("acceptMessages");
 
-  // Todo:checking user accepting messages or  not or check status
 
   const isAcceptingMessages = useCallback(async () => {
     setisLoading(true);
@@ -43,7 +64,7 @@ const Page = () => {
       const axiosError = error as AxiosError<ApiResponse>;
       toast({
         title: "Error while fetching Accepting Status",
-        description: axiosError.response?.data.message,
+        description: axiosError.response?.data.message,                                        
         variant: "destructive",
       });
     } finally {
@@ -72,8 +93,7 @@ const Page = () => {
       const errorMessage = axiosError.response?.data.message;
 
       toast({
-        title: "Error while fetching Messages",
-        description: errorMessage,
+        title: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -82,14 +102,17 @@ const Page = () => {
     }
   }, [toast]);
 
-  const { data: session } = useSession();
+const { data: session } = useSession();
 const username = session?.user.username
 
   useEffect(() => {
     if (!session || !session.user) return;
     fetchMessages();
     isAcceptingMessages();
-  }, [toast, fetchMessages, session, isAcceptingMessages]);
+    if (welcome) {
+      setshowPopup(true)
+    }
+  }, [toast, fetchMessages, session, isAcceptingMessages,welcome]);
 
   const handleToggleSwitch = async () => {
     // setisLoading(true);
@@ -122,8 +145,38 @@ const username = session?.user.username
     }
   };
 
+const handleCopy = () => { 
+navigator.clipboard.writeText(`https://localhost:3000/send/${username}`);
+setCopied(true);
+setTimeout(() => setCopied(false),2000)
+}
+
   return (
-    <div className="my-8 mx-4 md:mx-8 lg:mx-auto p-6 bg-white rounded w-full max-w-6xl dark:bg-gray-900">
+    <>
+{showPopup && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-2xl shadow-lg max-w-md text-center">
+            <h2 className="text-xl font-bold mb-2">🎉 Welcome to ShadeBox!</h2>
+                <div className="flex items-center gap-2 p-2 border rounded-md">
+      <span className="truncate text-sm">Your unique link: {`https://localhost:3000/send/${username}`}</span>
+      <button onClick={handleCopy} className="p-1 hover:bg-gray-100 rounded">
+        {copied ? (
+          <Check className="text-green-500 w-5 h-5" />
+        ) : (
+          <Copy className="text-gray-500 w-5 h-5" />
+        )}
+      </button>
+    </div>
+            <button
+              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              onClick={() => setshowPopup(false)}
+            >
+              Got it!
+            </button>
+          </div>
+        </div>
+      )}
+      <div className="my-8 mx-4 md:mx-8 lg:mx-auto p-6 bg-white rounded w-full max-w-6xl dark:bg-gray-900">
       <h1 className="text-4xl font-bold mb-4 dark:text-white">
    {username} Dashboard
       </h1>
@@ -178,6 +231,8 @@ const username = session?.user.username
         ))}
       </div>
     </div>
+        </>
+
   );
 };
 

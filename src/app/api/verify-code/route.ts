@@ -13,7 +13,6 @@ export async function POST(request: Request) {
   try {
     const { username, code } = await request.json();
 
-    // const decodedUsername = decodeURIComponent(username);
 
     const user = await UserModel.findOne({ username });
 
@@ -29,13 +28,12 @@ export async function POST(request: Request) {
 
     const isCodevalid = user.verifyCode === code;
 
-    const isCodeNotExpired = new Date(user.verifyCodeExpiry) > new Date();
-
+  const isCodeNotExpired = new Date(user.verifyCodeExpiry) > new Date();
   console.log("codeExpiry",isCodeNotExpired);
   
 
 
-    if (isCodevalid && isCodeNotExpired) {
+  if (isCodevalid && isCodeNotExpired) {
       user.isVerified = true;
       await user.save();
 

@@ -173,6 +173,8 @@ const Page = () => {
                 </FormItem>
               )}
             />
+
+            <div className="flex flex-col  items-center space-y-4">
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? (
                 <>
@@ -183,6 +185,11 @@ const Page = () => {
                 "Signup"
               )}
             </Button>
+
+           <Link href="/sign-in" className="text-blue-500 hover:underline ">
+              Already have an account? Login here
+            </Link>
+             </div>
           </form>
         </Form>
       </div>

@@ -12,10 +12,12 @@ export const authOptions: NextAuthOptions = {
       id: "credentials",
       name: "Credentials",
       credentials: {
-        email: { label: "Email", type: "text" },
+        identifier :{label:'username or email', type:'text'},
         password: { label: "Password", type: "password" },
+        verifyCode: { label: "Verification Code", type: "text" },
       },
-      async authorize(credentials: { identifier: string; password: string }) {
+
+      async authorize(credentials: { identifier: string; password: string; verifyCode: string }) {
         try {
           await dbConnect();
           const user = await UserModel.findOne({
@@ -33,6 +35,7 @@ export const authOptions: NextAuthOptions = {
             throw new Error("Please verify your account before logging in.");
           }
 
+          if (credentials.password) {
           const isPasswordCorrect = await bcrypt.compare(
             credentials.password,
             user.password
@@ -41,7 +44,15 @@ export const authOptions: NextAuthOptions = {
           if (!isPasswordCorrect) {
             throw new Error("Incorrect password.");
           }
+        }
 
+          const isCodeValid = credentials.verifyCode
+            ? user.verifyCode === credentials.verifyCode 
+            : true;
+
+          if (!isCodeValid) {
+            throw new Error("Invalid verification code.");
+          }
           return user;
         } catch (err: any) {
           console.error("Authorization error:", err.message);

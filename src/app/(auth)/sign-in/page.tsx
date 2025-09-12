@@ -14,6 +14,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
+import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -21,7 +22,7 @@ import { signIn, useSession } from "next-auth/react";
 import * as Z from "zod";
 
 const Page = () => {
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
   console.log("session", session);
 
   const router = useRouter();
@@ -44,16 +45,15 @@ const Page = () => {
   });
 
   const onSubmit = async (data: Z.infer<typeof signInSchema>) => {
-    setIsSubmitting(true);
 
+    setIsSubmitting(true);
     const result = await signIn("credentials", {
       redirect: false,
       identifier: data.identifier,
       password: data.password,
     });
-
+    
     setIsSubmitting(false);
-
     if (result?.error) {
       if (result.error === "CredentialsSignin") {
         toast({
@@ -72,6 +72,8 @@ const Page = () => {
     }
 
     if (result?.url) {
+      console.log("result",result?.url);
+      
       toast({
         title: "Success",
         description: "Successfully signed in! Redirecting...",
@@ -129,6 +131,7 @@ const Page = () => {
               )}
             />
 
+           <div className="flex flex-col items-center space-y-4">
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? (
                 <>
@@ -139,6 +142,11 @@ const Page = () => {
                 "Sign In"
               )}
             </Button>
+
+              <Link href="/sign-up" className="text-blue-500 hover:underline ">
+              Don't have an account? Sign Up
+            </Link>
+            </div>
           </form>
         </Form>
       </div>

@@ -13,10 +13,8 @@ import {
     CommandGroup,
     CommandInput,
     CommandItem,
-    CommandList: React.FC<{ children: React.ReactNode }>,
-    CommandShortcut,
+    CommandList,
     CommandSeparator,
-    CommandShortcut,
   } from "@/components/ui/command"
   
   import { FC } from "react";

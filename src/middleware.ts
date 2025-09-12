@@ -17,7 +17,6 @@ export async function middleware(request: NextRequest) {
 
   // Redirect authenticated users away from sign-in/sign-up
   if (token && (url.pathname.startsWith('/sign-in') || url.pathname.startsWith('/sign-up') || url.pathname.startsWith('/verify'))) {
-    console.log("token1",token);
     
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
@@ -29,7 +28,6 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/sign-in', request.url));
   }
 
-console.log("token3",token);
 
 
   return NextResponse.next();
