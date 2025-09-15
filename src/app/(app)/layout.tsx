@@ -17,33 +17,20 @@
     
 //   );
 // }
-"use client";
-
+// src/app/(app)/layout.tsx
 import { ThemeProvider } from "@/components/themeProvider";
 import { SessionProvider } from "next-auth/react";
-import { Suspense } from "react";
+import { ReactNode } from "react";
 
 export const metadata = {
   title: "Dashboard - My Next.js App",
-  description: "Dashboard section of the application.",
+  description: "Dashboard section of the application",
 };
 
-export default function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function DashboardLayout({ children }: { children: ReactNode }) {
   return (
     <ThemeProvider>
-      <SessionProvider>
-        <div className="dashboard-container">
-          <main>
-            <Suspense fallback={<div>Loading dashboard...</div>}>
-              {children}
-            </Suspense>
-          </main>
-        </div>
-      </SessionProvider>
+      <SessionProvider>{children}</SessionProvider>
     </ThemeProvider>
   );
 }
