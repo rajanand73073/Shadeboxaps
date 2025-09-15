@@ -144,11 +144,12 @@ const username = session?.user.username
       setisSwitchLoading(false);
     }
   };
-
-const handleCopy = () => { 
-navigator.clipboard.writeText(`https://localhost:3000/send/${username}`);
-setCopied(true);
-setTimeout(() => setCopied(false),2000)
+  
+const url = process.env.NEXTAUTH_URL;
+const handleCopy = () => {
+  navigator.clipboard.writeText(`${url}/send/${username}`);
+  setCopied(true);
+  setTimeout(() => setCopied(false), 2000);
 }
 
   return (
@@ -158,7 +159,7 @@ setTimeout(() => setCopied(false),2000)
           <div className="bg-white p-6 rounded-2xl shadow-lg max-w-md text-center">
             <h2 className="text-xl font-bold mb-2">🎉 Welcome to ShadeBox!</h2>
                 <div className="flex items-center gap-2 p-2 border rounded-md">
-      <span className="truncate text-sm">Your unique link: {`https://localhost:3000/send/${username}`}</span>
+      <span className="truncate text-sm">Your unique link: {`${url}/send/${username}`}</span>
       <button onClick={handleCopy} className="p-1 hover:bg-gray-100 rounded">
         {copied ? (
           <Check className="text-green-500 w-5 h-5" />

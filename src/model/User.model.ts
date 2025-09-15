@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document } from "mongoose";
+import mongoose, { Schema, Document ,Types} from "mongoose";
 
 export interface Message extends Document {
   content: string;
@@ -21,6 +21,7 @@ const MessageSchema: Schema<Message> = new Schema({
 
 
 export interface User extends Document {
+  _id: Types.ObjectId;
   username: string;
   email: string;
   password: string;

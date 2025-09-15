@@ -6,7 +6,10 @@ import bcrypt from "bcryptjs";
 import dbConnect from "@/lib/dbConnect";
 import UserModel from "@/model/User.model";
 
+
+
 export const authOptions: NextAuthOptions = {
+ 
   providers: [
     CredentialsProvider({
       id: "credentials",
@@ -17,53 +20,63 @@ export const authOptions: NextAuthOptions = {
         verifyCode: { label: "Verification Code", type: "text" },
       },
 
-      async authorize(credentials: { identifier: string; password: string; verifyCode: string }) {
-        try {
-          await dbConnect();
-          const user = await UserModel.findOne({
-            $or: [
-              { email: credentials.identifier },
-              { username: credentials.identifier },
-            ],
-          });
+      async authorize(credentials: Record<string, string> | undefined, ) {
+      if (!credentials) return null;
 
-          if (!user) {
-            throw new Error("No user found with this identifier.");
-          }
+  try {
+    await dbConnect();
 
-          if (!user.isVerified) {
-            throw new Error("Please verify your account before logging in.");
-          }
+    const user = await UserModel.findOne({
+      $or: [
+        { email: credentials.identifier },
+        { username: credentials.identifier },
+      ],
+    });
 
-          if (credentials.password) {
-          const isPasswordCorrect = await bcrypt.compare(
-            credentials.password,
-            user.password
-          );
+    if (!user) {
+      throw new Error("No user found with this identifier.");
+    }
 
-          if (!isPasswordCorrect) {
-            throw new Error("Incorrect password.");
-          }
-        }
+    if (!user.isVerified) {
+      throw new Error("Please verify your account before logging in.");
+    }
 
-          const isCodeValid = credentials.verifyCode
-            ? user.verifyCode === credentials.verifyCode 
-            : true;
+    if (credentials.password) {
+      const isPasswordCorrect = await bcrypt.compare(
+        credentials.password,
+        user.password
+      );
 
-          if (!isCodeValid) {
-            throw new Error("Invalid verification code.");
-          }
-          return user;
-        } catch (err: any) {
-          console.error("Authorization error:", err.message);
-          throw new Error(err.message || "Authentication failed.");
-        }
-      },
-    }),
-  ],
-  callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
+      if (!isPasswordCorrect) {
+        throw new Error("Incorrect password.");
+      }
+    }
+
+    const isCodeValid = credentials.verifyCode
+      ? user.verifyCode === credentials.verifyCode
+      : true;
+
+    if (!isCodeValid) {
+      throw new Error("Invalid verification code.");
+    }
+
+    return {
+     id:user._id.toString(),
+    _id:user._id.toString(),
+    username:user.username,
+    isVerified:user.isVerified,
+    isAcceptingMessage:user.isAcceptingMessage
+  };
+  } catch (err) {
+    const error = err as Error;
+    throw new Error(error.message || "Authentication failed.");
+  }
+},
+}),
+],
+callbacks: {
+async jwt({ token, user }) {
+if (user) {
         token._id = user._id;
         token.username = user.username;
         token.isVerified = user.isVerified;
