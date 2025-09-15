@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Loader, Loader2, Mail } from "lucide-react"; // Assuming you have an icon for messages

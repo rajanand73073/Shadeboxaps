@@ -14,8 +14,10 @@ const [username, setUsername] = useState("");
 const [content, setContent] = useState("");
 const { toast } = useToast();
 
-const handleSubmit = async () =>{
-    if(!username || !content){
+const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    if (!username || !content) {
         toast({
         title: "Error",
         description: "Please filled all fields",
@@ -56,7 +58,7 @@ const handleSubmit = async () =>{
 
   return (
     <>
-    <form action={handleSubmit}>
+    <form onSubmit={handleSubmit}>
     <div className="flex flex-col items-center justify-center mx-auto  my-10 ">
     <input type="text" 
     placeholder="username" className="mb-4 p-2 border rounded w-full max-w-md"  
