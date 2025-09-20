@@ -5,7 +5,8 @@ import { NextResponse } from "next/server";
 export default withAuth(
   function middleware(req) {
     const { pathname } = req.nextUrl;
-
+  console.log("middleware pathname",req.nextauth.token);
+  
     // If user IS logged in and tries to access sign-in/up/verify → send to dashboard
     if (
       req.nextauth.token &&
