@@ -1,7 +1,5 @@
 "use client";
 
-
-
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -23,7 +21,6 @@ import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import * as Z from "zod";
 import { signIn } from "next-auth/react";
-
 
 const Verifyaccount = () => {
   const params = useParams<{ username: string }>();
@@ -61,10 +58,10 @@ const Verifyaccount = () => {
 
       console.log("Login response", loginRes);
 
-   if (loginRes && loginRes.ok) {
-    console.log("Login successful");
-     router.replace(`/dashboard?welcome=true`);
-   }
+      if (loginRes && loginRes.ok) {
+        console.log("Login successful");
+        router.replace(`/dashboard?welcome=true`);
+      }
       setisSubmitting(false);
     } catch (error) {
       console.error("Error in signup of user", error);
@@ -76,7 +73,6 @@ const Verifyaccount = () => {
         variant: "destructive",
       });
       setisSubmitting(false);
-
     }
   };
 

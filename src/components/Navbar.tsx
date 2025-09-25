@@ -42,11 +42,6 @@ const Navbar = () => {
 
         <div className="space-x-8 flex">
           <div className="space-x-5 flex ">
-            <Link href="/publicFeed">
-              <Button variant="link">
-                <span className="font-bold">Social Feed</span>
-              </Button>
-            </Link>
 
             <Link href={"/SendMessage"}>
               <Button variant="link">
