@@ -1,37 +1,34 @@
-// middleware.ts
-import { withAuth } from "next-auth/middleware";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from 'next/server';
+import { getToken } from 'next-auth/jwt';
 
-export default withAuth(
-  function middleware(req) {
-    const { pathname } = req.nextUrl;
-  console.log("middleware pathname",req.nextauth.token);
-  
-    // If user IS logged in and tries to access sign-in/up/verify → send to dashboard
-    if (
-      req.nextauth.token &&
-      (pathname.startsWith("/sign-in") ||
-        pathname.startsWith("/sign-up") ||
-        pathname.startsWith("/verify"))
-    ) {
-      return NextResponse.redirect(new URL("/dashboard", req.url));
-    }
-
-    // If user is NOT logged in and tries to access /dashboard → send to sign-in
-    if (!req.nextauth.token && pathname.startsWith("/dashboard")) {
-      return NextResponse.redirect(new URL("/sign-in", req.url));
-    }
-
-    // Home ("/") is public, don’t force redirect
-    return NextResponse.next();
-  },
-  {
-    callbacks: {
-      authorized: () => true, // always allow through; we’ll handle redirects manually
-    },
-  }
-);
+export { default } from 'next-auth/middleware';
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/sign-in", "/sign-up", "/verify/:path*"],
+  matcher: ['/dashboard/:path*', '/sign-in', '/sign-up', '/', '/verify/:path*'],
 };
+
+export async function middleware(request: NextRequest) {
+  const token = await getToken({ req: request });
+  const url = request.nextUrl;
+
+  if (!token) {
+    console.log("No token found. Redirecting unauthenticated users...");
+  }
+
+  // Redirect authenticated users away from sign-in/sign-up
+  if (token && (url.pathname.startsWith('/sign-in') || url.pathname.startsWith('/sign-up') || url.pathname.startsWith('/verify'))) {
+    
+    return NextResponse.redirect(new URL('/dashboard', request.url));
+  }
+
+  // Redirect unauthenticated users away from the dashboard
+  if (!token && url.pathname.startsWith('/dashboard')) {
+    console.log("token2",token);
+    
+    return NextResponse.redirect(new URL('/sign-in', request.url));
+  }
+
+
+
+  return NextResponse.next();
+}
