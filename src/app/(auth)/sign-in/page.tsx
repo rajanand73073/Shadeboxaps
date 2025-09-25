@@ -51,17 +51,12 @@ const Page = () => {
       redirect: false,
       identifier: data.identifier,
       password: data.password,
+      callbackUrl: "/dashboard",
     });
     
     setIsSubmitting(false);
     if (result?.error) {
       if (result.error === "CredentialsSignin") {
-        toast({
-          title: "Fail",
-          description: "Incorrect Username/email or password",
-          variant: "destructive",
-        });
-      } else {
         toast({
           title: "Error",
           description: result.error,

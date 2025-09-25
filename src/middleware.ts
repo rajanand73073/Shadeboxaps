@@ -11,10 +11,6 @@ export async function middleware(request: NextRequest) {
   const token = await getToken({ req: request });
   const url = request.nextUrl;
 
-  if (!token) {
-    console.log("No token found. Redirecting unauthenticated users...");
-  }
-
   // Redirect authenticated users away from sign-in/sign-up
   if (token && (url.pathname.startsWith('/sign-in') || url.pathname.startsWith('/sign-up') || url.pathname.startsWith('/verify'))) {
     

@@ -33,7 +33,6 @@ export const authOptions: NextAuthOptions = {
           if (!user) {
             throw new Error("No user found with this identifier.");
           }
-          console.log("user", user);
           if (!user.isVerified) {
             throw new Error("Please verify your account before logging in.");
           }
