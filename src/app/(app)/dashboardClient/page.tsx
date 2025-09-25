@@ -28,6 +28,10 @@ function DashboardClientInner() {
   const acceptMessages = watch("acceptMessages");
   const { data: session } = useSession();
   const username = session?.user.username;
+  console.log("session in dashboard", session);
+  
+  console.log("username", username);
+  
 
   // ✅ Suspense-safe hook
   const searchParams = useSearchParams();
