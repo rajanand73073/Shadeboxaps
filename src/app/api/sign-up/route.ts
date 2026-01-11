@@ -46,6 +46,7 @@ export async function POST(request: Request) {
     } else {
       const hasedPassword = await bcrypt.hash(password, 10);
       const expiryDate = new Date();
+      //here expiryDate is a object and inside object you can change anything insted of const 
       expiryDate.setHours(expiryDate.getHours() + 1);
       const newUser = new UserModel({
         username,
@@ -94,6 +95,7 @@ export async function POST(request: Request) {
       {
         success: false,
         message: "Error registering User",
+
       },
       {
         status: 500,

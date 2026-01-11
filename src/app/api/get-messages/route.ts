@@ -4,7 +4,10 @@ import UserModel from "@/model/User.model";
 import { User } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import mongoose from "mongoose";
-export async function GET(request: Request) {
+
+
+
+export async function GET() {
   await dbConnect();
 
   const session = await getServerSession(authOptions);
@@ -30,6 +33,7 @@ export async function GET(request: Request) {
           _id: userId,
         },
       },
+      //unwind is used for array to convert it into objects
       {
         $unwind: "$messages",
       },

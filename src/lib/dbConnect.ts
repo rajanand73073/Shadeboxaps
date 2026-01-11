@@ -6,6 +6,8 @@ type ConnectionObject = {
 
 const connection: ConnectionObject = {};
 
+
+//here void means it doesn't care what type of data are coming
 async function dbConnect(): Promise<void> {
   if (connection.isConnected) {
     console.log("Already Connected to database");
@@ -13,8 +15,13 @@ async function dbConnect(): Promise<void> {
   }
 
   try {
-    const db = await mongoose.connect(process.env.MONGODB_URI || " ", {});
-
+    const db = await mongoose.connect(process.env.MONGODB_URI ||' ', {
+  dbName: "shadebox",
+  autoIndex: false,
+  serverSelectionTimeoutMS: 5000,
+  maxPoolSize: 10,
+  appName: "ShadeBox-API",
+});
     console.log("DB", db);
 
     connection.isConnected = db.connection.readyState;

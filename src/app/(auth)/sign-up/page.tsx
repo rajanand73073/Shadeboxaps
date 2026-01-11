@@ -37,7 +37,6 @@ const Page = () => {
   const router = useRouter();
   const debounce = useDebounceCallback(setusername, 500);
   //zod implementation
-
   const form = useForm({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
@@ -76,7 +75,7 @@ const Page = () => {
     setisSubmitting(true);
     try {
       const response = await axios.post<ApiResponse>("/api/sign-up", data);
-      console.log("response", response);
+      // console.log("response", response);
 
       toast({
         title: "Success",

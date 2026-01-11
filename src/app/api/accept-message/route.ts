@@ -35,7 +35,7 @@ export async function POST(request: Request) {
       return Response.json(
         {
           success: false,
-          message: "failed to update user stautus",
+          message: "failed to update user status",
         },
         { status: 401 }
       );
@@ -60,7 +60,7 @@ export async function POST(request: Request) {
   }
 }
 
-export async function GET(request:Request){
+export async function GET(){
     await dbConnect();
 
   const session = await getServerSession(authOptions);
@@ -77,7 +77,6 @@ export async function GET(request:Request){
   }
 
   const userId = user._id;
- console.log("userId",userId);
  
  try {
    const foundUser = await UserModel.findById(userId)
@@ -104,8 +103,4 @@ export async function GET(request:Request){
  } catch (error) {
   console.error("Error while founduser",error)
  }
-
-
-
-
 }

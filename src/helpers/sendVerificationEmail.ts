@@ -16,6 +16,7 @@ export async function sendVerificationEmail(
   username: string,
   verifyCode: string
 ): Promise<{ success: boolean; message: string }> {
+  //Promise<T>Will eventually give a value of type T
   try {
     const mailOptions = {
       from: '"shadebox" <rajanandup70@gmail.com>', // Sender's email address

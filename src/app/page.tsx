@@ -13,11 +13,9 @@ import {
   CarouselItem,
 } from "@/components/ui/carousel";
 import { useEffect, useState } from "react";
-import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
 export default function Page() {
-  const { data: session, status } = useSession();
   const router = useRouter();
   const [Loading, setLoading] = useState(false);
 
@@ -34,7 +32,7 @@ export default function Page() {
   return (
     <>
       {/* Main content */}
-      <main className="flex-grow flex flex-col items-center justify-center px-4 md:px-24 py-12  text-white">
+      <main className="flex-grow flex flex-col items-center justify-center px-4 md:px-24 py-12  text-white ">
         <section className="text-center mb-8 md:mb-12">
           <h1 className="text-3xl md:text-5xl font-bold">
             Dive into the World of Anonymous Feedback
@@ -93,7 +91,7 @@ export default function Page() {
           </Button>
         </Link>
 
-        <Link href="/Socialfeed">
+        <Link href="/chat/create-room">
           <Button
             onSubmit={handleLoading}
             className="group relative px-8 py-8 rounded-xl text-lg font-medium overflow-hidden cursor-pointer bg-gradient-to-r from-blue-400/70 to-blue-200/70 backdrop-blur-sm border border-white/10 hover:border-indigo-500/30 hover:bg-gradient-to-r hover:from-gray-400/50 hover:to-gray-700/50 hover:bg-white/10 transition-all duration-300 dark:border-gray-500/30 dark:hover:border-indigo-500/50 dark:hover:bg-gradient-to-r dark:hover:from-gray-400/50 dark:hover:to-gray-700/50"

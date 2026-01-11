@@ -137,10 +137,10 @@ function DashboardClientInner() {
     <>
       {/* 🎉 Welcome popup */}
       {showPopup && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-2xl shadow-lg max-w-md text-center">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 ">
+          <div className="bg-gray-300 p-6 rounded-2xl shadow-lg max-w-md text-center dark:bg-gray-900">
             <h2 className="text-xl font-bold mb-2">🎉 Welcome to ShadeBox!</h2>
-            <div className="flex items-center gap-2 p-2 border rounded-md">
+            <div className="flex items-center gap-2 p-2 border rounded-md ">
               <span className="truncate text-sm">
                 Your unique link: {`${url}/send/${username}`}
               </span>

@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { signIn, useSession } from "next-auth/react";
@@ -58,7 +58,7 @@ const Page = () => {
     if (result?.error) {
       if (result.error === "CredentialsSignin") {
         toast({
-          title: "Error",
+          title: "Login Failed",
           description: result.error,
           variant: "destructive",
         });
@@ -139,7 +139,7 @@ const Page = () => {
             </Button>
 
               <Link href="/sign-up" className="text-blue-500 hover:underline ">
-              Don't have an account? Sign Up
+              Don&apos;t have an account? Sign Up
             </Link>
             </div>
           </form>
