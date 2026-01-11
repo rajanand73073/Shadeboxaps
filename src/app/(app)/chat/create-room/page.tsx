@@ -19,11 +19,8 @@ import { useForm } from "react-hook-form";
 import * as Z from "zod";
 import { useRouter } from "next/navigation";
 
-
 export const CreateRoom = () => {
-     
-
-   const router = useRouter();
+  const router = useRouter();
   const { toast } = useToast();
   const [isSubmitting, setisSubmitting] = useState(false);
 
@@ -41,8 +38,8 @@ export const CreateRoom = () => {
       const roomId = data.code;
       router.push(`/chat/chat-room/${roomId}`);
     } catch (error) {
-      console.error("Error in creating Room",error)
-      
+      console.error("Error in creating Room", error);
+
       toast({
         title: "Signup failed",
         description: "Please try again later.",
@@ -58,7 +55,7 @@ export const CreateRoom = () => {
         <div className="text-center">
           <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl mb-6">
             Create Chat Room
-        </h1>
+          </h1>
         </div>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
@@ -77,7 +74,6 @@ export const CreateRoom = () => {
                       }}
                     />
                   </FormControl>
-
                   <FormMessage />
                 </FormItem>
               )}
@@ -90,7 +86,7 @@ export const CreateRoom = () => {
                   Please Wait
                 </>
               ) : (
-               "Sumbit"
+                "Sumbit"
               )}
             </Button>
           </form>

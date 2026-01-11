@@ -10,7 +10,7 @@ export interface ClientToServerEvents {
 export interface ServerToClientEvents{
     "receive-message":(payload:{
       message:string,
-      at:number  
+      id:string
     }) => void,
     "chat-history":(chatHistory:[]) => void,
 }

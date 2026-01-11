@@ -22,15 +22,17 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { getSocket } from "@/lib/socket";
 import { useParams } from "next/navigation";
+import { anonymousId } from "@/lib/socket";
 
 function Page() {
-  const [message, setmessage] = useState<string[]>([]);
+  const [message, setmessage] = useState<{ message: string; id: string }[]>([]);
   const [input, setinput] = useState<string>("");
   const { toast } = useToast();
   const params = useParams<{ roomId: string }>();
-
   const socket = getSocket();
   const roomId = params.roomId;
+  const myAnonyId = anonymousId();
+
   useEffect(() => {
     if (!roomId) {
       toast({
@@ -41,22 +43,22 @@ function Page() {
       return;
     }
     socket.emit("join-room", roomId);
-
     // The listener is registered once when the component mounts
-    socket.on("receive-message", ({ message, at }) => {
-      console.log("Message received from server:", message, at);
-      setmessage((prev) => {
-        const updated = [...prev, message];
-        // saveMessages(updated);
-        return updated;
-      });
+
+
+    socket.on("receive-message", (message) => {
+      setmessage((prev) => [
+        ...prev,
+        { message: message.message, id: message.id },
+      ]);
     });
 
-    socket.on("chat-history", (chatHistory: string[]) => {
-      console.log("Chat history received from server:", chatHistory);
-      setmessage(chatHistory);
-      console.log("messages", message);
+
+    socket.on("chat-history",  (chatHistory) => {
+      const updated = chatHistory.map((msg: string) => JSON.parse(msg));
+       setmessage(updated);
     });
+    
 
     // Cleanup function to remove the listener when the component unmounts
     return () => {
@@ -64,8 +66,6 @@ function Page() {
       socket.off("chat-history");
     };
   }, []);
-
- 
 
   const handlemessage = (e: React.FormEvent): void => {
     e.preventDefault();
@@ -75,20 +75,15 @@ function Page() {
       roomId: roomId,
       message: input,
     });
-
     
-    // setmessage((prev) => {
-    //   const updated = [...prev, input];
-    //   return updated;
-    // });
-
+    setmessage((prev) => [...prev, { message: input, id: myAnonyId }]);
     setinput("");
   };
 
   const deleteMessage = (index: number) => {
     setmessage((prev) => {
-            const updated = prev.filter((_, i) => i !== index);
-            return updated;
+      const updated = prev.filter((_, i) => i !== index);
+      return updated;
     });
   };
 
@@ -101,10 +96,10 @@ function Page() {
           {message.map((msg, index: number) => (
             <div
               key={index}
-              className={`flex ${index % 2 === 0 ? "justify-end" : "justify-start"} `}
+              className={`flex ${msg.id === myAnonyId ? "justify-end" : "justify-start"} `}
             >
               <div className="bg-gray-100 rounded-lg py-3 pl-3 max-w-[70%] text-blue-900 mt-10 cursor-pointer flex justify-between gap-4 hover:bg-gray-200">
-                {msg}
+                {msg.message}
                 <div>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
