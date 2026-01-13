@@ -25,7 +25,7 @@ import { useParams } from "next/navigation";
 import { anonymousId } from "@/lib/socket";
 
 function Page() {
-  const [message, setmessage] = useState<{ message: string; id: string }[]>([]);
+  const [messages, setmessages] = useState<{ message: string; id: string, msgId: string }[]>([]);
   const [input, setinput] = useState<string>("");
   const { toast } = useToast();
   const params = useParams<{ roomId: string }>();
@@ -45,46 +45,70 @@ function Page() {
     socket.emit("join-room", roomId);
     // The listener is registered once when the component mounts
 
-
-    socket.on("receive-message", (message) => {
-      setmessage((prev) => [
+    socket.on("receive-message", (message) => { 
+      setmessages((prev) => [
         ...prev,
-        { message: message.message, id: message.id },
+        { message: message.message, id: message.id , msgId: message.msgId},
       ]);
     });
 
-
-    socket.on("chat-history",  (chatHistory) => {
+    socket.on("chat-history", (chatHistory) => {
       const updated = chatHistory.map((msg: string) => JSON.parse(msg));
-       setmessage(updated);
+      setmessages(updated);
     });
-    
+
+
+socket.on("message-deleted", (msgId) => {
+  console.log("CLIENT: received message-deleted", msgId);
+  setmessages(prev => prev.filter(msg => msg.msgId !== msgId));
+});
+
+// Listener is ready before any delete events
+
+
 
     // Cleanup function to remove the listener when the component unmounts
-    return () => {
-      socket.off("receive-message");
-      socket.off("chat-history");
-    };
+return () => {
+  socket.off("receive-message");
+  socket.off("chat-history");
+  socket.off("message-deleted");  
+};
+
   }, []);
 
+
+  
   const handlemessage = (e: React.FormEvent): void => {
     e.preventDefault();
+    
     if (input.trim() === "") return;
-
+    const msgId = crypto.randomUUID();
     socket.emit("send-message", {
       roomId: roomId,
       message: input,
+      msgId: msgId
     });
-    
-    setmessage((prev) => [...prev, { message: input, id: myAnonyId }]);
+
+    setmessages((prev) => [...prev, { message: input, id: myAnonyId, msgId: msgId }]);
     setinput("");
   };
 
-  const deleteMessage = (index: number) => {
-    setmessage((prev) => {
-      const updated = prev.filter((_, i) => i !== index);
+  const deleteMessage = (msgId: string) => {
+    console.log('del', msgId);
+    
+     setmessages((prev) => { 
+     const updated = prev.filter(msg => msg.msgId !== msgId)
       return updated;
     });
+     //updating locally for instant UI response
+    
+    socket.emit("delete-message", {
+      roomId,
+      msgId
+    });
+
+  
+
   };
 
   return (
@@ -93,9 +117,9 @@ function Page() {
       <div className="pb-24 px-4 overflow-y-auto">
         <div className="max-w-6xl mx-auto pt-8 h-full">
           <h1 className="text-4xl font-bold mb-4">Chat Room</h1>
-          {message.map((msg, index: number) => (
+          {messages.map((msg) => (
             <div
-              key={index}
+              key={msg.msgId}
               className={`flex ${msg.id === myAnonyId ? "justify-end" : "justify-start"} `}
             >
               <div className="bg-gray-100 rounded-lg py-3 pl-3 max-w-[70%] text-blue-900 mt-10 cursor-pointer flex justify-between gap-4 hover:bg-gray-200">
@@ -114,10 +138,12 @@ function Page() {
                           <Reply />
                           Reply
                         </DropdownMenuItem>
+                        {msg.id === myAnonyId ? null : 
                         <DropdownMenuItem>
                           <UserRoundXIcon />
                           Block User
                         </DropdownMenuItem>
+}
                         <DropdownMenuItem>
                           <ShareIcon />
                           Share Conversation
@@ -129,13 +155,16 @@ function Page() {
                       </DropdownMenuGroup>
                       <DropdownMenuSeparator />
                       <DropdownMenuGroup>
+                         {msg.id === myAnonyId ? 
                         <DropdownMenuItem
                           className="focus:bg-red-700 focus:text-white"
-                          onClick={() => deleteMessage(index)}
+                          onClick={() => deleteMessage(msg.msgId)}
                         >
                           <TrashIcon />
                           Delete Conversation
-                        </DropdownMenuItem>
+                        </DropdownMenuItem>:
+                        null 
+                        }
                       </DropdownMenuGroup>
                     </DropdownMenuContent>
                   </DropdownMenu>
