@@ -6,7 +6,7 @@ import { ArrowRight, Loader, Loader2, Mail } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Autoplay from "embla-carousel-autoplay";
 import messages from "@/message.json";
-
+import multivatar from "@/lib/multivatar";
 import {
   Carousel,
   CarouselContent,
@@ -18,7 +18,7 @@ import { useRouter } from "next/navigation";
 export default function Page() {
   const router = useRouter();
   const [Loading, setLoading] = useState(false);
-
+  
   useEffect(() => {
     if (status === "authenticated") {
       router.replace("/dashboard");

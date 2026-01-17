@@ -10,6 +10,7 @@ import {
   UserRoundXIcon,
   EllipsisVertical,
   Reply,
+  RefreshCw
 } from "lucide-react";
 
 import {
@@ -23,15 +24,22 @@ import {
 import { getSocket } from "@/lib/socket";
 import { useParams } from "next/navigation";
 import { anonymousId } from "@/lib/socket";
+import { randomSeed } from '@/helpers/randomSeed';
+import Avatar from "@/components/avatar";
 
-function Page() {
-  const [messages, setmessages] = useState<{ message: string; id: string, msgId: string }[]>([]);
+
+export default function ChatRoomPage() {
+  const [messages, setmessages] = useState<
+    { message: string, id: string, msgId: string,seed:string }[]
+  >([]);
   const [input, setinput] = useState<string>("");
   const { toast } = useToast();
   const params = useParams<{ roomId: string }>();
   const socket = getSocket();
   const roomId = params.roomId;
   const myAnonyId = anonymousId();
+  const [showAvatar, setshowAvatar] = useState(false);
+  const [seed,setseed] = useState<string>("")
 
   useEffect(() => {
     if (!roomId) {
@@ -45,74 +53,142 @@ function Page() {
     socket.emit("join-room", roomId);
     // The listener is registered once when the component mounts
 
-    socket.on("receive-message", (message) => { 
+    socket.on("receive-message", (message) => {
+      console.log("mesage",message);
+      
       setmessages((prev) => [
         ...prev,
-        { message: message.message, id: message.id , msgId: message.msgId},
+        { message: message.message, id: message.id, msgId: message.msgId,seed:message.seed },
       ]);
     });
 
     socket.on("chat-history", (chatHistory) => {
+      console.log("chathistory",chatHistory);
+      
       const updated = chatHistory.map((msg: string) => JSON.parse(msg));
+      console.log("updated",updated);
+      
       setmessages(updated);
     });
 
 
-socket.on("message-deleted", (msgId) => {
-  console.log("CLIENT: received message-deleted", msgId);
-  setmessages(prev => prev.filter(msg => msg.msgId !== msgId));
-});
+     // Listener is ready before any delete events
+    socket.on("message-deleted", (msgId) => {
+      console.log("CLIENT: received message-deleted", msgId);
+      setmessages((prev) => prev.filter((msg) => msg.msgId !== msgId));
+    });
+   
 
-// Listener is ready before any delete events
+
+
+  // Receive TTL and schedule cleanup
+  socket.on("room-ttl", (ttlSeconds) => {
+    if (ttlSeconds <= 0) return;
+    setTimeout(() => {
+      localStorage.removeItem("anonymousId");
+      localStorage.removeItem(`${myAnonyId}`)
+      alert("Room expired. Starting fresh chat.");
+      window.location.href = "/";
+    }, ttlSeconds * 1000);
+  });
+
 
 
 
     // Cleanup function to remove the listener when the component unmounts
-return () => {
-  socket.off("receive-message");
-  socket.off("chat-history");
-  socket.off("message-deleted");  
-};
-
+    return () => {
+      socket.off("receive-message");
+      socket.off("chat-history");
+      socket.off("message-deleted");
+    };
   }, []);
 
+  useEffect(()=>{
+    const storeSeed:string = localStorage.getItem(`${myAnonyId}`) as string
+    setseed(storeSeed)
+    if(!storeSeed){
+      createSeed()
+      setshowAvatar(true)
+    }
+  },[])
 
-  
+  const createSeed = () => {
+    setseed(randomSeed()); 
+  };
+
+  const saveAvatar = (svgCode: string) => {
+    
+    localStorage.setItem(`${myAnonyId}`, svgCode);
+    setseed(svgCode)
+    setshowAvatar(false);
+  };
+
   const handlemessage = (e: React.FormEvent): void => {
     e.preventDefault();
-    
+
     if (input.trim() === "") return;
     const msgId = crypto.randomUUID();
+    console.log("Sending seed",seed);
+    
     socket.emit("send-message", {
       roomId: roomId,
       message: input,
-      msgId: msgId
+      msgId: msgId,
+      seed:seed
     });
 
-    setmessages((prev) => [...prev, { message: input, id: myAnonyId, msgId: msgId }]);
+    setmessages((prev) => [
+      ...prev,
+      { message: input, id: myAnonyId, msgId: msgId,seed:seed },
+    ]);
     setinput("");
   };
 
   const deleteMessage = (msgId: string) => {
-    console.log('del', msgId);
-    
-     setmessages((prev) => { 
-     const updated = prev.filter(msg => msg.msgId !== msgId)
+    console.log("del", msgId);
+
+    setmessages((prev) => {
+      const updated = prev.filter((msg) => msg.msgId !== msgId);
       return updated;
     });
-     //updating locally for instant UI response
-    
+    //updating locally for instant UI response
+
     socket.emit("delete-message", {
       roomId,
-      msgId
+      msgId,
     });
-
-  
-
   };
+
+  const refreshAvatar = ()=>{
+         setseed(randomSeed()); 
+  }
 
   return (
     <div className="min-h-screen">
+      {showAvatar && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 ">
+          <div className="bg-gray-300 p-6 rounded-2xl shadow-lg max-w-md text-center dark:bg-gray-900">
+            <h2 className="text-xl font-bold mb-2">🎉 Your Avatar!</h2>
+
+            <Avatar Seed = {seed}/>
+
+        <div className="flex justify-evenly ml-8 ">
+ <button
+              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              onClick={() => saveAvatar(seed)}
+            >
+              Got it!
+            </button>
+            <button onClick={refreshAvatar} className="mx-10 py-2 mt-4 ">
+               <RefreshCw />
+            </button>
+        </div>
+
+           
+          </div>
+        </div>
+      )}
+
       {/* Chat messages display area */}
       <div className="pb-24 px-4 overflow-y-auto">
         <div className="max-w-6xl mx-auto pt-8 h-full">
@@ -120,8 +196,11 @@ return () => {
           {messages.map((msg) => (
             <div
               key={msg.msgId}
-              className={`flex ${msg.id === myAnonyId ? "justify-end" : "justify-start"} `}
+              className={`flex ${msg.id === myAnonyId ? "justify-end" : "justify-start"} gap-x-2`}
             >
+             <div className="w-10 h-10 rounded-full">
+             <Avatar Seed={msg.seed} isMessageComponent = {true}/>
+            </div>
               <div className="bg-gray-100 rounded-lg py-3 pl-3 max-w-[70%] text-blue-900 mt-10 cursor-pointer flex justify-between gap-4 hover:bg-gray-200">
                 {msg.message}
                 <div>
@@ -138,12 +217,12 @@ return () => {
                           <Reply />
                           Reply
                         </DropdownMenuItem>
-                        {msg.id === myAnonyId ? null : 
-                        <DropdownMenuItem>
-                          <UserRoundXIcon />
-                          Block User
-                        </DropdownMenuItem>
-}
+                        {msg.id === myAnonyId ? null : (
+                          <DropdownMenuItem>
+                            <UserRoundXIcon />
+                            Block User
+                          </DropdownMenuItem>
+                        )}
                         <DropdownMenuItem>
                           <ShareIcon />
                           Share Conversation
@@ -155,16 +234,15 @@ return () => {
                       </DropdownMenuGroup>
                       <DropdownMenuSeparator />
                       <DropdownMenuGroup>
-                         {msg.id === myAnonyId ? 
-                        <DropdownMenuItem
-                          className="focus:bg-red-700 focus:text-white"
-                          onClick={() => deleteMessage(msg.msgId)}
-                        >
-                          <TrashIcon />
-                          Delete Conversation
-                        </DropdownMenuItem>:
-                        null 
-                        }
+                        {msg.id === myAnonyId ? (
+                          <DropdownMenuItem
+                            className="focus:bg-red-700 focus:text-white"
+                            onClick={() => deleteMessage(msg.msgId)}
+                          >
+                            <TrashIcon />
+                            Delete Conversation
+                          </DropdownMenuItem>
+                        ) : null}
                       </DropdownMenuGroup>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -193,5 +271,3 @@ return () => {
     </div>
   );
 }
-
-export default Page;

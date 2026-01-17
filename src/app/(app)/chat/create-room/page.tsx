@@ -23,7 +23,6 @@ export const CreateRoom = () => {
   const router = useRouter();
   const { toast } = useToast();
   const [isSubmitting, setisSubmitting] = useState(false);
-
   const form = useForm({
     resolver: zodResolver(verifySchema),
     defaultValues: {
@@ -35,7 +34,7 @@ export const CreateRoom = () => {
     console.log(data);
     setisSubmitting(true);
     try {
-      const roomId = data.code;
+      const roomId = data.code;      
       router.push(`/chat/chat-room/${roomId}`);
     } catch (error) {
       console.error("Error in creating Room", error);
@@ -48,6 +47,8 @@ export const CreateRoom = () => {
       setisSubmitting(false);
     }
   };
+  
+
 
   return (
     <div className="flex justify-center items-center  min-h-screen bg-gray-300 dark:bg-black">
@@ -78,6 +79,8 @@ export const CreateRoom = () => {
                 </FormItem>
               )}
             />
+           
+          
 
             <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? (
@@ -91,6 +94,8 @@ export const CreateRoom = () => {
             </Button>
           </form>
         </Form>
+      
+        
       </div>
     </div>
   );

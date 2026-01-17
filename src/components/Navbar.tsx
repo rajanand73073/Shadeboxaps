@@ -12,18 +12,9 @@ import { useTheme } from "next-themes";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuPortal,
-  DropdownMenuSeparator,
-  DropdownMenuShortcut,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
 const Navbar = () => {
   const { data: Session } = useSession();
   const { setTheme } = useTheme();
@@ -44,7 +35,9 @@ const Navbar = () => {
                 <span className="font-bold">Send Messages</span>
               </Button>
             </Link>
+
           </div>
+          
           {Session ? (
             <>
               <Button onClick={() => signOut()} className="w-full md:w-auto">

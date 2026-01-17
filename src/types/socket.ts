@@ -5,6 +5,7 @@ export interface ClientToServerEvents {
     roomId: string;
     message: string;
     msgId: string;
+    seed:string
   }) => void;
   "delete-message":(payload:{
     roomId:string,
@@ -16,8 +17,10 @@ export interface ServerToClientEvents{
     "receive-message":(payload:{
       message:string,
       id:string,
-      msgId:string
+      msgId:string,
+      seed:string
     }) => void,
     "chat-history":(chatHistory:[]) => void,
     "message-deleted":(msgId:string) => void,
+    "room-ttl":(ttl:number) => void
 }
