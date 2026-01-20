@@ -13,7 +13,6 @@ export async function POST(request: Request) {
   try {
     const { username, code } = await request.json();
 
-
     const user = await UserModel.findOne({ username });
 
     if (!user) {
@@ -22,18 +21,16 @@ export async function POST(request: Request) {
           success: false,
           message: "user not found",
         },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
     const isCodevalid = user.verifyCode === code;
 
-  const isCodeNotExpired = new Date(user.verifyCodeExpiry) > new Date();
-  console.log("codeExpiry",isCodeNotExpired);
-  
+    const isCodeNotExpired = new Date(user.verifyCodeExpiry) > new Date();
+    console.log("codeExpiry", isCodeNotExpired);
 
-
-  if (isCodevalid && isCodeNotExpired) {
+    if (isCodevalid && isCodeNotExpired) {
       user.isVerified = true;
       await user.save();
 
@@ -42,7 +39,7 @@ export async function POST(request: Request) {
           success: true,
           message: "User Verified Successfully",
         },
-        { status: 200 }
+        { status: 200 },
       );
     } else if (!isCodeNotExpired) {
       return Response.json(
@@ -50,7 +47,7 @@ export async function POST(request: Request) {
           success: false,
           message: "Verification Code expired Please Signup again",
         },
-        { status: 500 }
+        { status: 500 },
       );
     } else {
       return Response.json(
@@ -58,7 +55,7 @@ export async function POST(request: Request) {
           success: false,
           message: "Code is incorrect",
         },
-        { status: 500 }
+        { status: 500 },
       );
     }
   } catch (error) {
@@ -68,7 +65,7 @@ export async function POST(request: Request) {
         success: false,
         message: "Eroor verifying username",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

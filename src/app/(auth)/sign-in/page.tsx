@@ -45,7 +45,6 @@ const Page = () => {
   });
 
   const onSubmit = async (data: Z.infer<typeof signInSchema>) => {
-
     setIsSubmitting(true);
     const result = await signIn("credentials", {
       redirect: false,
@@ -53,7 +52,7 @@ const Page = () => {
       password: data.password,
       callbackUrl: "/dashboard",
     });
-    
+
     setIsSubmitting(false);
     if (result?.error) {
       if (result.error === "CredentialsSignin") {
@@ -67,8 +66,8 @@ const Page = () => {
     }
 
     if (result?.url) {
-      console.log("result",result?.url);
-      
+      console.log("result", result?.url);
+
       toast({
         title: "Success",
         description: "Successfully signed in! Redirecting...",
@@ -126,21 +125,21 @@ const Page = () => {
               )}
             />
 
-           <div className="flex flex-col items-center space-y-4">
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Please Wait
-                </>
-              ) : (
-                "Sign In"
-              )}
-            </Button>
+            <div className="flex flex-col items-center space-y-4">
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Please Wait
+                  </>
+                ) : (
+                  "Sign In"
+                )}
+              </Button>
 
               <Link href="/sign-up" className="text-blue-500 hover:underline ">
-              Don&apos;t have an account? Sign Up
-            </Link>
+                Don&apos;t have an account? Sign Up
+              </Link>
             </div>
           </form>
         </Form>

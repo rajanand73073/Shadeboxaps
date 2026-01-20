@@ -2,7 +2,7 @@
 
 import dbConnect from "@/lib/dbConnect";
 import UserModel from "@/model/User.model";
-import bcrypt from "bcryptjs"
+import bcrypt from "bcryptjs";
 import { sendVerificationEmail } from "@/helpers/sendVerificationEmail";
 
 export async function POST(request: Request) {
@@ -20,7 +20,7 @@ export async function POST(request: Request) {
           success: false,
           message: "username already exist",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -33,7 +33,7 @@ export async function POST(request: Request) {
             success: false,
             message: "User already exist with this email",
           },
-          { status: 400 }
+          { status: 400 },
         );
       } else {
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -46,7 +46,7 @@ export async function POST(request: Request) {
     } else {
       const hasedPassword = await bcrypt.hash(password, 10);
       const expiryDate = new Date();
-      //here expiryDate is a object and inside object you can change anything insted of const 
+      //here expiryDate is a object and inside object you can change anything insted of const
       expiryDate.setHours(expiryDate.getHours() + 1);
       const newUser = new UserModel({
         username,
@@ -60,17 +60,21 @@ export async function POST(request: Request) {
       });
 
       await newUser.save();
-      
     }
 
     //send verificationemail
     const emailResponse = await sendVerificationEmail(
       email,
       username,
-      verifyCode
+      verifyCode,
     );
 
-    console.log("sendVerificationEmail function called with:", email, username, verifyCode);
+    console.log(
+      "sendVerificationEmail function called with:",
+      email,
+      username,
+      verifyCode,
+    );
 
     if (!emailResponse.success) {
       return Response.json(
@@ -78,7 +82,7 @@ export async function POST(request: Request) {
           success: false,
           message: emailResponse.message,
         },
-        { status: 500 }
+        { status: 500 },
       );
     } else {
       return Response.json(
@@ -86,7 +90,7 @@ export async function POST(request: Request) {
           success: true,
           message: emailResponse.message,
         },
-        { status: 200 }
+        { status: 200 },
       );
     }
   } catch (error) {
@@ -95,11 +99,10 @@ export async function POST(request: Request) {
       {
         success: false,
         message: "Error registering User",
-
       },
       {
         status: 500,
-      }
+      },
     );
   }
 }

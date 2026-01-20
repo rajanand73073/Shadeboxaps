@@ -9,12 +9,11 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-
 // Function to send the verification email
 export async function sendVerificationEmail(
   email: string,
   username: string,
-  verifyCode: string
+  verifyCode: string,
 ): Promise<{ success: boolean; message: string }> {
   //Promise<T>Will eventually give a value of type T
   try {

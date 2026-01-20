@@ -23,20 +23,11 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 const Page = () => {
- 
+  const param = useParams<{ username: string }>();
+  const username = param.username;
+  const { toast } = useToast();
 
-const param = useParams<{username:string}>()
-const username = param.username
-const {toast} = useToast();
-
-
-
-
-
-
-
-
-/*Use one approach consistently—either destructure directly from useParams:
+  /*Use one approach consistently—either destructure directly from useParams:
 
 const { username } = useParams<{ username: string }>();
 
@@ -48,7 +39,6 @@ const username = param.username;
  */
 
   const [isLoading, setisLoading] = useState(false);
-  
 
   const form = useForm<z.infer<typeof messageSchema>>({
     resolver: zodResolver(messageSchema),
@@ -58,37 +48,32 @@ const username = param.username;
   });
 
   const onSubmit = async (data: z.infer<typeof messageSchema>) => {
-    setisLoading(true)
+    setisLoading(true);
     console.log(data);
-   try {
-    const response = await axios.post(`/api/send-message`,
-     {
-      username:username,
-      content:data.content
-     } 
-    )
-   console.log("responsesend:",response.data.user);
-   
-    toast({
-      title:"Success",
-      description: response.data.message
-    })
-form.reset({content:""})
+    try {
+      const response = await axios.post(`/api/send-message`, {
+        username: username,
+        content: data.content,
+      });
+      console.log("responsesend:", response.data.user);
 
-   } catch (error) {
+      toast({
+        title: "Success",
+        description: response.data.message,
+      });
+      form.reset({ content: "" });
+    } catch (error) {
+      const axioserror = error as AxiosError<ApiResponse>;
+      console.log("axiosError", axioserror);
 
-  const axioserror = error as AxiosError<ApiResponse>
-  console.log("axiosError",axioserror);
-  
-    toast({
-      title:"Error",
-      description:axioserror.response?.data.message ,
-      variant:"destructive"
-    })
-   }
-   finally{
-    setisLoading(false)
-   }
+      toast({
+        title: "Error",
+        description: axioserror.response?.data.message,
+        variant: "destructive",
+      });
+    } finally {
+      setisLoading(false);
+    }
   };
 
   return (
@@ -115,21 +100,17 @@ form.reset({content:""})
             )}
           />
           <Button type="submit">
-            {isLoading?
-             (
-             <>
-             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-             Please Wait
-             </>)
-               : (
-                "Send Message"              
-              )
-                }
-            </Button>
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Please Wait
+              </>
+            ) : (
+              "Send Message"
+            )}
+          </Button>
         </form>
       </Form>
-
-    
     </div>
   );
 };

@@ -17,35 +17,45 @@ export async function GET(request: Request) {
       username: searchParams.get("username"),
     };
     //validate with zod
-    const result = UsernameQuerySchema.safeParse(queryParam)
+    const result = UsernameQuerySchema.safeParse(queryParam);
     // console.log("result",result);
 
     if (!result.success) {
-      const usernameError = result.error.format().
-      username?._errors || []
-      return Response.json({
-        success:false,
-        message:"Invalid query parameters",
-        usernameError
-      },{status:400})
+      const usernameError = result.error.format().username?._errors || [];
+      return Response.json(
+        {
+          success: false,
+          message: "Invalid query parameters",
+          usernameError,
+        },
+        { status: 400 },
+      );
     }
 
-   const {username} = result.data
-   
-   const existingVerifiedUser = await UserModel.findOne({username,isVerified:true})
-    
-  if (existingVerifiedUser) {
-    return Response.json({
-      success:false,
-      message:"Username is alredy taken "
-    },{status:400})
-  }
+    const { username } = result.data;
 
-  return Response.json({
-    success:true,
-    message:"Username available "
-  },{status:200})
+    const existingVerifiedUser = await UserModel.findOne({
+      username,
+      isVerified: true,
+    });
 
+    if (existingVerifiedUser) {
+      return Response.json(
+        {
+          success: false,
+          message: "Username is alredy taken ",
+        },
+        { status: 400 },
+      );
+    }
+
+    return Response.json(
+      {
+        success: true,
+        message: "Username available ",
+      },
+      { status: 200 },
+    );
   } catch (error) {
     console.error("Error checking username", error);
     return Response.json(
@@ -53,7 +63,7 @@ export async function GET(request: Request) {
         success: false,
         message: "Eroor checking username",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

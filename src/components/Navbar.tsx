@@ -35,9 +35,8 @@ const Navbar = () => {
                 <span className="font-bold">Send Messages</span>
               </Button>
             </Link>
-
           </div>
-          
+
           {Session ? (
             <>
               <Button onClick={() => signOut()} className="w-full md:w-auto">

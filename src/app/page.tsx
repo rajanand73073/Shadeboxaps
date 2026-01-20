@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Loader, Loader2, Mail } from "lucide-react"; 
+import { ArrowRight, Loader, Loader2, Mail } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Autoplay from "embla-carousel-autoplay";
 import messages from "@/message.json";
@@ -18,7 +18,7 @@ import { useRouter } from "next/navigation";
 export default function Page() {
   const router = useRouter();
   const [Loading, setLoading] = useState(false);
-  
+
   useEffect(() => {
     if (status === "authenticated") {
       router.replace("/dashboard");

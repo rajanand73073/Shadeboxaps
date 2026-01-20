@@ -29,9 +29,8 @@ function DashboardClientInner() {
   const { data: session } = useSession();
   const username = session?.user.username;
   console.log("session in dashboard", session);
-  
+
   console.log("username", username);
-  
 
   // ✅ Suspense-safe hook
   const searchParams = useSearchParams();
@@ -44,7 +43,10 @@ function DashboardClientInner() {
       const response = await axios.get<ApiResponse>("/api/get-messages");
       if (response.data.Message) {
         setMessages(response.data.Message);
-        toast({ title: "Success", description: "Messages fetched successfully" });
+        toast({
+          title: "Success",
+          description: "Messages fetched successfully",
+        });
       }
     } catch (error) {
       const axiosError = error as AxiosError<ApiResponse>;
@@ -85,7 +87,10 @@ function DashboardClientInner() {
         messageId,
       });
       if (response.data.success) {
-        toast({ title: "Success", description: "Message deleted successfully" });
+        toast({
+          title: "Success",
+          description: "Message deleted successfully",
+        });
       }
     } catch (error) {
       const axiosError = error as AxiosError<ApiResponse>;

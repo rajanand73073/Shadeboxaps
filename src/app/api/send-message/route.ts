@@ -16,7 +16,7 @@ export async function POST(request: Request) {
           success: false,
           message: "userNot Found",
         },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -26,34 +26,31 @@ export async function POST(request: Request) {
           success: false,
           message: "user is not acceptng messages",
         },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
-    const newmessage = { content, createdAt: new Date()};
+    const newmessage = { content, createdAt: new Date() };
     user.messages.push(newmessage as Message);
-    await user.save()
+    await user.save();
     return Response.json(
       {
         success: true,
         message: "send anonymous message",
         newmessage,
-        user
+        user,
       },
-      { status: 200 }
+      { status: 200 },
     );
-
-  }
-   catch (error) {
-
-    console.error("Erroe while sending messsage", error)
+  } catch (error) {
+    console.error("Erroe while sending messsage", error);
 
     return Response.json(
       {
         success: false,
         message: "error while sending message",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

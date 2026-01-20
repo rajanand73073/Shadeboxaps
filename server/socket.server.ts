@@ -23,6 +23,8 @@ const initializeSocket = (server: HttpServer): void => {
   io.on("connection", (socket) => {
     console.log(`Client connected: ${socket.id}`);
     const anonyId = socket.handshake.auth.anonyId;
+    console.log("anonyId", anonyId);
+
     socket.data.anonyId = anonyId;
 
     socket.on("join-room", async (roomId) => {
@@ -35,9 +37,11 @@ const initializeSocket = (server: HttpServer): void => {
       console.log(`Socket ${socket.id} joined room ${roomId}`);
       const ttl = await client.ttl(key);
 
-        if (ttl > 0) {
-           socket.emit("room-ttl", ttl);
-         }
+      if (ttl > 0) {
+        socket.emit("room-ttl", ttl);
+      } else {
+        socket.emit("room-ttl", ttl);
+      }
     });
 
     // ✅ Listen on the same socket
@@ -54,14 +58,13 @@ const initializeSocket = (server: HttpServer): void => {
       await client.rPush(`room:${roomId}`, JSON.stringify(Msgobject));
 
       // Only set expiry if room was just created
-       if (!exists) {
-    await client.expire(key, 60);
+      if (!exists) {
+        await client.expire(key, 5*60);
 
-    // Get TTL and broadcast to all users in room
-    const ttl = await client.ttl(key);
-    io.to(roomId).emit("room-ttl", ttl);
-  }
-
+        // Get TTL and broadcast to all users in room
+        const ttl = await client.ttl(key);
+        io.to(roomId).emit("room-ttl", ttl);
+      }
 
       // forward to room
       socket.to(roomId).emit("receive-message", Msgobject);

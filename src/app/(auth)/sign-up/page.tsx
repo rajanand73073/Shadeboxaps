@@ -24,10 +24,6 @@ import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
 
-
-
-
-
 const Page = () => {
   const [username, setusername] = useState("");
   const [usernamemessage, setusernamemessage] = useState("");
@@ -53,13 +49,13 @@ const Page = () => {
         setusernamemessage("");
         try {
           const response = await axios.get(
-            `/api/check-uniqueusername?username=${username}`
+            `/api/check-uniqueusername?username=${username}`,
           );
           setusernamemessage(response.data.message);
         } catch (error) {
           const axiosError = error as AxiosError<ApiResponse>;
           setusernamemessage(
-            axiosError.response?.data.message ?? "ERROR CHECKING USERNAME"
+            axiosError.response?.data.message ?? "ERROR CHECKING USERNAME",
           );
         } finally {
           setisCheckingUsername(false);
@@ -103,9 +99,10 @@ const Page = () => {
           <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl mb-6 dark:text-white">
             Share Your Message as Mystery
           </h1>
-          <p className="mb-4 dark:text-white">Sign up to start your anonymous adventure</p>
+          <p className="mb-4 dark:text-white">
+            Sign up to start your anonymous adventure
+          </p>
         </div>
-
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
@@ -125,9 +122,7 @@ const Page = () => {
                       }}
                     />
                   </FormControl>
-                  <FormDescription>
-                  {usernamemessage}
-                  </FormDescription>
+                  <FormDescription>{usernamemessage}</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -141,8 +136,7 @@ const Page = () => {
                   <FormControl>
                     <Input placeholder="Enter you email" {...field} />
                   </FormControl>
-                  <FormDescription>
-                  </FormDescription>
+                  <FormDescription></FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -155,40 +149,36 @@ const Page = () => {
                   <FormLabel>Password</FormLabel>
                   <FormControl>
                     <Input
-                      
                       placeholder="Password"
                       type="password"
                       {...field}
                       onChange={(e) => {
                         field.onChange(e);
-                       
                       }}
                     />
-
                   </FormControl>
-                  <FormDescription>
-                  </FormDescription>
+                  <FormDescription></FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
 
             <div className="flex flex-col  items-center space-y-4">
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Please Wait
-                </>
-              ) : (
-                "Signup"
-              )}
-            </Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Please Wait
+                  </>
+                ) : (
+                  "Signup"
+                )}
+              </Button>
 
-           <Link href="/sign-in" className="text-blue-500 hover:underline ">
-              Already have an account? Login here
-            </Link>
-             </div>
+              <Link href="/sign-in" className="text-blue-500 hover:underline ">
+                Already have an account? Login here
+              </Link>
+            </div>
           </form>
         </Form>
       </div>

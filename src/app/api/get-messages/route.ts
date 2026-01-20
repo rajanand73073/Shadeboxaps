@@ -5,8 +5,6 @@ import { User } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/options";
 import mongoose from "mongoose";
 
-
-
 export async function GET() {
   await dbConnect();
 
@@ -21,7 +19,7 @@ export async function GET() {
         success: false,
         message: "Not Authenticated",
       },
-      { status: 401 }
+      { status: 401 },
     );
   }
 
@@ -53,14 +51,14 @@ export async function GET() {
     ]);
 
     console.log("User", user);
-    
+
     if (!user || user.length === 0) {
       return Response.json(
         {
           success: false,
           message: "No messages found ",
         },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -70,7 +68,7 @@ export async function GET() {
         message: "User  found",
         Message: user[0].messages,
       },
-      { status: 201 }
+      { status: 201 },
     );
   } catch (error) {
     return Response.json(
@@ -79,7 +77,7 @@ export async function GET() {
         message: "An error occurred",
         error: error,
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
