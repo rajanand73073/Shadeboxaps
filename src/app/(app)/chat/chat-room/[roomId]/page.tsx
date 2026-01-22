@@ -26,6 +26,7 @@ import { useParams } from "next/navigation";
 import { anonymousId } from "@/lib/socket";
 import { randomSeed } from "@/helpers/randomSeed";
 import Avatar from "@/components/avatar";
+import ShareRoomCard from "@/components/ShareRoomCard";
 
 interface MessageItem {
   message: string;
@@ -39,6 +40,7 @@ export default function ChatRoomPage() {
 
   const params = useParams<{ roomId: string }>();
   const roomId = params.roomId;
+  const [showShare, setShowShare] = useState(false);
   const [input, setinput] = useState<string>("");
   const { toast } = useToast();
   const socket = getSocket(roomId);
@@ -47,6 +49,12 @@ export default function ChatRoomPage() {
   const key = `anon:${roomId}`;
   const [showAvatar, setshowAvatar] = useState(false);
   const [seed, setseed] = useState<string>("");
+
+  useEffect(() => {
+  const isCreator = localStorage.getItem(`creator:${roomId}`) === "true";
+  setShowShare(isCreator)
+  }, [])
+  
 
   useEffect(() => {
     if (!roomId) {
@@ -204,6 +212,14 @@ export default function ChatRoomPage() {
 
   return (
     <div className="min-h-screen">
+  
+  {showShare && (
+  <ShareRoomCard
+    roomId={roomId}
+    onClose={() => setShowShare(false)}
+  />
+)}
+
       {showAvatar && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 ">
           <div className="bg-gray-300 p-6 rounded-2xl shadow-lg max-w-md text-center dark:bg-gray-900">

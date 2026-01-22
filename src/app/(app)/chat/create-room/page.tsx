@@ -1,40 +1,25 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+
 import { useToast } from "@/hooks/use-toast";
-import { verifySchema } from "@/Schemas/verifySchema";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import React, { useState } from "react";
-import { useForm } from "react-hook-form";
-import * as Z from "zod";
 import { useRouter } from "next/navigation";
+import { nanoid } from 'nanoid'
 
-export const CreateRoom = () => {
+export default function CreateRoom () {
   const router = useRouter();
   const { toast } = useToast();
   const [isSubmitting, setisSubmitting] = useState(false);
-  const form = useForm({
-    resolver: zodResolver(verifySchema),
-    defaultValues: {
-      code: "",
-    },
-  });
 
-  const onSubmit = async (data: Z.infer<typeof verifySchema>) => {
-    console.log(data);
+
+  const onSubmit = async () => {
     setisSubmitting(true);
     try {
-      const roomId = data.code;
+     const roomId = nanoid(12);
+    localStorage.setItem(`creator:${roomId}`, "true");
+    router.push(`/room/${roomId}`);
       router.push(`/chat/chat-room/${roomId}`);
     } catch (error) {
       console.error("Error in creating Room", error);
@@ -56,43 +41,18 @@ export const CreateRoom = () => {
             Create Chat Room
           </h1>
         </div>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-            <FormField
-              control={form.control}
-              name="code"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Room Code</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="Code"
-                      {...field}
-                      onChange={(e) => {
-                        field.onChange(e);
-                      }}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <Button type="submit" disabled={isSubmitting}>
+            <Button type="submit" disabled={isSubmitting} onClick={onSubmit}>
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Please Wait
                 </>
               ) : (
-                "Sumbit"
+                "Create Chat Room"
               )}
             </Button>
-          </form>
-        </Form>
       </div>
     </div>
-  );
-};
+  )}
 
-export default CreateRoom;
+
