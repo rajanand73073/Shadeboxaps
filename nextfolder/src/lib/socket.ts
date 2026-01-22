@@ -14,7 +14,8 @@ export const identity: identityKey = {};
 
 export const getSocket = (roomId: string) => {
   if (!socket) {
-    socket = io("http://localhost:3000", {
+
+    socket = io(process.env.NEXT_PUBLIC_APP_URL, {
       auth: {
         anonyId: anonymousId(roomId),
       },
