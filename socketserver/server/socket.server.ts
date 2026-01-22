@@ -35,7 +35,7 @@ const initializeSocket = (server: HttpServer): void => {
         socket.emit("chat-history", chatHistory);
       }
       console.log(`Socket ${socket.id} joined room ${roomId}`);
-      const ttl = await client.ttl(key);
+      const ttl:number = await client.ttl(key) as number;
 
       if (ttl > 0) {
         socket.emit("room-ttl", ttl);
@@ -76,7 +76,7 @@ const initializeSocket = (server: HttpServer): void => {
       const key = `room:${roomId}`;
       console.log("Delete request received for msgId:", msgId);
       // Get all messages from Redis
-      const messages:string[] = await client.lRange(key, 0, -1);
+      const messages = await client.lRange(key, 0, -1);
 
       // Find the message index by ID
       for (let i = 0; i < messages.length; i++) {
