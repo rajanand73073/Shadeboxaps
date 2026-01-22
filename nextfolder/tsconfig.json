@@ -30,5 +30,7 @@
     ".next/types/**/*.ts",
     "global.d.ts"
 , "../socketserver/server/lib/redisClient.ts"  ],
-  "exclude": ["nextfolder/node_modules"]
+  "exclude": [
+  "nextfolder/node_modules",
+"../socketserver" ]
 }
