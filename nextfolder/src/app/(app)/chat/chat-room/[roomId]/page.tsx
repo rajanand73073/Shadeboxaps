@@ -53,6 +53,7 @@ export default function ChatRoomPage() {
   useEffect(() => {
   const isCreator = localStorage.getItem(`creator:${roomId}`) === "true";
   setShowShare(isCreator)
+  localStorage.setItem(`creator:${roomId}`,"false")
   }, [])
   
 
