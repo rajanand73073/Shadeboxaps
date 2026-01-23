@@ -50,10 +50,12 @@ export default function ChatRoomPage() {
   const [showAvatar, setshowAvatar] = useState(false);
   const [seed, setseed] = useState<string>("");
 
-  useEffect(() => {
+  useEffect( () => {
   const isCreator = localStorage.getItem(`creator:${roomId}`) === "true";
-  setShowShare(isCreator)
+  if(isCreator){
   localStorage.setItem(`creator:${roomId}`,"false")
+  setShowShare(isCreator)
+  }
   }, [])
   
 
