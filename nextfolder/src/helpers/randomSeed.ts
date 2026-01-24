@@ -1,5 +1,5 @@
-export function randomSeed(min = 5, max = 20) {
-  const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
+export function randomSeed(min = 5, max = 22) {
+  const chars = "abcdefghijklmnopqrstuvwxyz0123456789-!/";
   const length = Math.floor(Math.random() * (max - min + 1)) + min;
 
   let result = "";
