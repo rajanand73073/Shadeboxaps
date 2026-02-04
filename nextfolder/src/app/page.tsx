@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Button } from "../components/ui/button";
-import { ArrowRight, Loader, Loader2, Mail } from "lucide-react";
+import { ArrowRight, Loader, Mail } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
 import Autoplay from "embla-carousel-autoplay";
 import messages from "../message.json";
@@ -23,6 +23,20 @@ export default function Page() {
       router.replace("/dashboard");
     }
   }, [status, router]);
+
+  useEffect(()=>{
+    Object.keys(localStorage).forEach(key => {
+  
+  if (key.startsWith("anon:")) {
+    const data = JSON.parse(localStorage.getItem(key)!);
+    if (Date.now() > data.createdAt) {
+      localStorage.removeItem(key);
+    }
+  }
+  
+},[]);
+
+  })
 
   const handleLoading = () => {
     setLoading(true);
