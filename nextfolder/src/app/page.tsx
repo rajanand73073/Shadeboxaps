@@ -24,19 +24,8 @@ export default function Page() {
     }
   }, [status, router]);
 
-  useEffect(()=>{
-    Object.keys(localStorage).forEach(key => {
   
-  if (key.startsWith("anon:")) {
-    const data = JSON.parse(localStorage.getItem(key)!);
-    if (Date.now() > data.createdAt) {
-      localStorage.removeItem(key);
-    }
-  }
-  
-},[]);
 
-  })
 
   const handleLoading = () => {
     setLoading(true);
