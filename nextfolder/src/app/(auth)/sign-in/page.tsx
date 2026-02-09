@@ -45,6 +45,7 @@ const Page = () => {
   });
 
   const onSubmit = async (data: Z.infer<typeof signInSchema>) => {
+    
     setIsSubmitting(true);
     const result = await signIn("credentials", {
       redirect: false,
@@ -125,6 +126,7 @@ const Page = () => {
                       placeholder="Password"
                       {...field}
                       onChange={(e) => field.onChange(e.target.value)}
+                      required
                     />
                   </FormControl>
                   <FormMessage />
