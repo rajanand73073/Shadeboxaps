@@ -62,6 +62,13 @@ const Page = () => {
           variant: "destructive",
         });
       }
+      else{
+      toast({
+        title: "Login Failed",
+        description: "wrong password",
+        variant: "destructive",
+      });
+      }
       return;
     }
 
