@@ -13,10 +13,12 @@ import { signInSchema } from "../../../Schemas/signInSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "../../../components/ui/input";
 import { Button } from "../../../components/ui/button";
+import {Separator} from "../../../components/ui/separator"
 import { Loader2 } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { useEffect, useState } from "react";
+import { useRouter,useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { signIn, useSession } from "next-auth/react";
 import * as Z from "zod";
@@ -24,7 +26,8 @@ import * as Z from "zod";
 const Page = () => {
   const { data: session } = useSession();
   console.log("session", session);
-
+  const searchParams = useSearchParams();
+  const error = searchParams.get("error");
   const router = useRouter();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -43,6 +46,73 @@ const Page = () => {
       password: "",
     },
   });
+
+useEffect(() => {
+    const error = searchParams.get("error");
+    if (error) {
+        toast({
+          title: "Login Failed",
+          description: decodeURIComponent(error),
+          variant: "destructive",
+        });
+
+      router.replace("/sign-in");
+    }
+  }, [searchParams, router]);
+  
+const handleGoogleSignIn = async ()=>{
+ try {
+  setIsSubmitting(true);
+  const result = await signIn("google",{
+    callbackUrl:"/dashboard"
+  });
+    console.log("Result",result?.error);
+    setIsSubmitting(false);
+    if (result?.error) {
+      if (result.error === "CredentialsSignin") {
+        toast({
+          title: "Login Failed",
+          description: result.error,
+          variant: "destructive",
+        });
+      }
+      else{
+      toast({
+        title: "Login Failed",
+        description: "wrong password",
+        variant: "destructive",
+      });
+      }
+      return;
+    }
+
+    if (result?.url) {
+      console.log("result", result?.url);
+
+      toast({
+        title: "Success",
+        description: "Successfully signed in! Redirecting...",
+      });
+      router.replace(result.url);
+    }  
+  
+ } catch (e) {
+  setIsSubmitting(false);
+  toast({
+    title: "Error",
+    description: "Failed to sign in with Google",
+    variant: "destructive",
+  });
+ }
+}
+
+const handleTwitterSignIn = async ()=>{
+
+}
+
+const handleInstaGramSignIn = async ()=>{
+
+}
 
   const onSubmit = async (data: Z.infer<typeof signInSchema>) => {
     
@@ -145,13 +215,29 @@ const Page = () => {
                   "Sign In"
                 )}
               </Button>
-
-              <Link href="/sign-up" className="text-blue-500 hover:underline ">
-                Don&apos;t have an account? Sign Up
-              </Link>
             </div>
           </form>
         </Form>
+
+          <Separator /> 
+
+<div className="flex flex-col">
+  <div className="flex justify-between mx-4">
+                <Button variant="ghost" onClick={handleGoogleSignIn}>
+                <Image src="/google.png" alt="Google Sign In" width={32} height={32}/>
+                </Button>
+                <Button variant="ghost" onClick={handleTwitterSignIn} className="bg-gray-200">
+                <Image src="/twitter.png" alt="Twitter Sign In" width={32} height={32}/>
+                </Button> <Button variant="ghost" onClick={handleInstaGramSignIn}>
+                <Image src="/instagram.png" alt="Instagram Sign In" width={32} height={32}/>
+                </Button>
+                </div>
+                <div className="mt-8 text-center">
+              <Link href="/sign-up" className="text-blue-500 hover:underline ">
+                Don&apos;t have an account? Sign Up
+              </Link>
+                </div>
+</div>
       </div>
     </div>
   );
