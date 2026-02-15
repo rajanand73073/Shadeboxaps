@@ -1,13 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import {
-  Copy,
-  X,
-  Send,
-  MessageCircle,
-  Link as LinkIcon,
-} from "lucide-react";
+import { Copy, X, Send, MessageCircle, Link as LinkIcon } from "lucide-react";
 
 type Props = {
   roomId: string;
@@ -23,14 +17,18 @@ export default function ShareRoomCard({ roomId, onClose }: Props) {
   };
 
   const shareWhatsapp = () => {
-    window.open(`https://wa.me/?text=${encodeURIComponent(roomLink)}`, "_blank");
+    window.open(
+      `https://wa.me/?text=${encodeURIComponent(roomLink)}`,
+      "_blank",
+    );
   };
 
   const shareTelegram = () => {
-    window.open(`https://t.me/share/url?url=${encodeURIComponent(roomLink)}`, "_blank");
+    window.open(
+      `https://t.me/share/url?url=${encodeURIComponent(roomLink)}`,
+      "_blank",
+    );
   };
-
-
 
   return (
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
@@ -82,8 +80,6 @@ export default function ShareRoomCard({ roomId, onClose }: Props) {
           >
             <Send size={20} />
           </button>
-
-  
         </div>
 
         <p className="text-xs text-zinc-400 mt-4">

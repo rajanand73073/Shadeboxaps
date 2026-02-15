@@ -12,8 +12,7 @@
   - Sender cannot receive replies
   - Message is strictly one-way
 - If user SIGNUP using credentials then receive OTP for verified user.
-- BUT if User SigUp Using Oauth Provider then Verified User without OTP.
-- IF User already registered with same email while Signup with that eamil then throw error user already registered.
+- BUT if User SigUp Using Oauth Provider then Verified User without OTP
 - If User SignIN using Googleauth or credntial email and both have same email then return same token
 ## 2.Reply Rules (Anonymous Messaging)
 

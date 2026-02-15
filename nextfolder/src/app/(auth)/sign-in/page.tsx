@@ -13,21 +13,19 @@ import { signInSchema } from "../../../Schemas/signInSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "../../../components/ui/input";
 import { Button } from "../../../components/ui/button";
-import {Separator} from "../../../components/ui/separator";
+import { Separator } from "../../../components/ui/separator";
 import { Loader2 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { useEffect, useState } from "react";
-import { useRouter,useSearchParams } from "next/navigation";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { signIn, useSession } from "next-auth/react";
 import * as Z from "zod";
 
-
 const Page = () => {
   const { data: session } = useSession();
   console.log("session", session);
-  const searchParams = useSearchParams();
   const router = useRouter();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -47,41 +45,14 @@ const Page = () => {
     },
   });
 
-useEffect(() => {
-  const error = searchParams.get("error");
-  if (error) {
-    if (error === "AccessDenied") {
-     toast({
-      title: "Login Failed",
-      description: "No account found. Please sign up first.",
-      variant: "destructive",
+  const handleGoogleSignIn = () => {
+    setIsSubmitting(true);
+    signIn("google", {
+      callbackUrl: "/dashboard",
     });
-    }
-    router.replace("/sign-in");
-  }
-}, [searchParams, router]);
+  };
 
-
-
-
-const handleGoogleSignIn = ()=>{
-  setIsSubmitting(true);
-  signIn("google",{
-    callbackUrl:"/dashboard"
-  });
-}
-
-const handleTwitterSignIn = async ()=>{
-
-}
-
-
-const handleInstaGramSignIn = async ()=>{
-
-}
-
-const onSubmit = async (data: Z.infer<typeof signInSchema>) => {
-    
+  const onSubmit = async (data: Z.infer<typeof signInSchema>) => {
     setIsSubmitting(true);
     const result = await signIn("credentials", {
       redirect: false,
@@ -98,13 +69,12 @@ const onSubmit = async (data: Z.infer<typeof signInSchema>) => {
           description: result.error,
           variant: "destructive",
         });
-      }
-      else{
-      toast({
-        title: "Login Failed",
-        description: "wrong password",
-        variant: "destructive",
-      });
+      } else {
+        toast({
+          title: "Login Failed",
+          description: "wrong password",
+          variant: "destructive",
+        });
       }
       return;
     }
@@ -119,7 +89,7 @@ const onSubmit = async (data: Z.infer<typeof signInSchema>) => {
       router.replace(result.url);
     }
   };
- return (
+  return (
     <div className="flex justify-center items-center min-h-screen bg-gray-300 dark:bg-black">
       <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md dark:bg-gray-900">
         <div className="text-center">
@@ -184,29 +154,28 @@ const onSubmit = async (data: Z.infer<typeof signInSchema>) => {
           </form>
         </Form>
 
-          <Separator /> 
+        <Separator />
 
-<div className="flex flex-col">
-  <div className="flex justify-between mx-4">
-                <Button variant="ghost" onClick={handleGoogleSignIn}>
-                <Image src="/google.png" alt="Google Sign In" width={32} height={32}/>
-                </Button>
-                <Button variant="ghost" onClick={handleTwitterSignIn} className="bg-gray-200">
-                <Image src="/twitter.png" alt="Twitter Sign In" width={32} height={32}/>
-                </Button> <Button variant="ghost" onClick={handleInstaGramSignIn}>
-                <Image src="/instagram.png" alt="Instagram Sign In" width={32} height={32}/>
-                </Button>
-                </div>
-                <div className="mt-8 text-center">
-              <Link href="/sign-up" className="text-blue-500 hover:underline ">
-                Don&apos;t have an account? Sign Up
-              </Link>
-                </div>
-</div>
+        <div className="flex flex-col">
+          <div className="flex justify-center">
+            <Button variant="ghost" onClick={handleGoogleSignIn}>
+              <Image
+                src="/google.png"
+                alt="Google Sign In"
+                width={32}
+                height={32}
+              />
+            </Button>
+          </div>
+          <div className="mt-8 text-center">
+            <Link href="/sign-up" className="text-blue-500 hover:underline ">
+              Don&apos;t have an account? Sign Up
+            </Link>
+          </div>
+        </div>
       </div>
     </div>
   );
-
 };
 
 export default Page;

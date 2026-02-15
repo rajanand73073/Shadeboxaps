@@ -27,6 +27,8 @@ export interface User extends Document {
   isVerified: boolean;
   isAcceptingMessage: boolean;
   messages: Message[];
+  provider: string;
+  providerId: string;
   createdAt: Date;
 }
 
@@ -45,15 +47,20 @@ const UserSchema: Schema<User> = new Schema({
   },
   password: {
     type: String,
-    required: [true, "Password is required"],
+    //Custom Validator
+    required: function () {
+      return this.provider === "credentials";
+    },
   },
   verifyCode: {
     type: String,
-    required: true,
+    default: null,
   },
   verifyCodeExpiry: {
     type: Date,
-    required: true,
+    required: function () {
+      return this.provider === "credentials";
+    },
   },
   isVerified: {
     type: Boolean,
@@ -68,6 +75,14 @@ const UserSchema: Schema<User> = new Schema({
     type: Date,
     required: true,
     default: Date.now,
+  },
+  provider: {
+    type: String,
+    enum: ["credentials", "google"],
+    default: "credentials",
+  },
+  providerId: {
+    type: String,
   },
 });
 

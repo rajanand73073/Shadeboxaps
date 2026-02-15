@@ -50,14 +50,13 @@ export default function ChatRoomPage() {
   const [showAvatar, setshowAvatar] = useState(false);
   const [seed, setseed] = useState<string>("");
 
-  useEffect( () => {
-  const isCreator = localStorage.getItem(`creator:${roomId}`) === "true";
-  if(isCreator){
-  localStorage.setItem(`creator:${roomId}`,"false")
-  setShowShare(isCreator)
-  }
-  }, [])
-  
+  useEffect(() => {
+    const isCreator = localStorage.getItem(`creator:${roomId}`) === "true";
+    if (isCreator) {
+      localStorage.setItem(`creator:${roomId}`, "false");
+      setShowShare(isCreator);
+    }
+  }, []);
 
   useEffect(() => {
     if (!roomId) {
@@ -137,7 +136,7 @@ export default function ChatRoomPage() {
     if (stored !== null) {
       parsed = JSON.parse(stored);
       if (parsed.createdAt) {
-        if (!(Date.now() - parsed.createdAt < 5*60* 1000)) {
+        if (!(Date.now() - parsed.createdAt < 5 * 60 * 1000)) {
           console.log("Removing Key...");
           localStorage.removeItem(key);
         }
@@ -147,8 +146,8 @@ export default function ChatRoomPage() {
 
   useEffect(() => {
     const storedIdentity = JSON.parse(localStorage.getItem(key) || "{}");
-    console.log("StoredIdentity",storedIdentity.seed);
-    
+    console.log("StoredIdentity", storedIdentity.seed);
+
     setseed(storedIdentity.seed ?? "");
     if (!storedIdentity.seed) {
       console.log("setting seed");
@@ -215,13 +214,9 @@ export default function ChatRoomPage() {
 
   return (
     <div className="min-h-screen">
-  
-  {showShare && (
-  <ShareRoomCard
-    roomId={roomId}
-    onClose={() => setShowShare(false)}
-  />
-)}
+      {showShare && (
+        <ShareRoomCard roomId={roomId} onClose={() => setShowShare(false)} />
+      )}
 
       {showAvatar && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 ">

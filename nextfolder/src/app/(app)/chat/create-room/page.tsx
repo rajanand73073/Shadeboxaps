@@ -6,20 +6,19 @@ import { useToast } from "../../../../hooks/use-toast";
 import { Loader2 } from "lucide-react";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import { nanoid } from 'nanoid'
+import { nanoid } from "nanoid";
 
-export default function CreateRoom () {
+export default function CreateRoom() {
   const router = useRouter();
   const { toast } = useToast();
   const [isSubmitting, setisSubmitting] = useState(false);
 
-
   const onSubmit = async () => {
     setisSubmitting(true);
     try {
-     const roomId = nanoid(12);
-    localStorage.setItem(`creator:${roomId}`, "true");
-    router.push(`/room/${roomId}`);
+      const roomId = nanoid(12);
+      localStorage.setItem(`creator:${roomId}`, "true");
+      router.push(`/room/${roomId}`);
       router.push(`/chat/chat-room/${roomId}`);
     } catch (error) {
       console.error("Error in creating Room", error);
@@ -41,18 +40,17 @@ export default function CreateRoom () {
             Create Chat Room
           </h1>
         </div>
-            <Button type="submit" disabled={isSubmitting} onClick={onSubmit}>
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Please Wait
-                </>
-              ) : (
-                "Create Chat Room"
-              )}
-            </Button>
+        <Button type="submit" disabled={isSubmitting} onClick={onSubmit}>
+          {isSubmitting ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Please Wait
+            </>
+          ) : (
+            "Create Chat Room"
+          )}
+        </Button>
       </div>
     </div>
-  )}
-
-
+  );
+}

@@ -17,7 +17,7 @@ export const authOptions: NextAuthOptions = {
         verifyCode: { label: "Verification Code", type: "text" },
       },
 
-      async authorize(credentials: Record<string, string> | undefined) {
+      async authorize(credentials) {
         if (!credentials) return null;
 
         await dbConnect();
@@ -37,15 +37,13 @@ export const authOptions: NextAuthOptions = {
           throw new Error("Please verify your account before logging in.");
         }
 
-        if (credentials.password) {
-          const isPasswordCorrect = await bcrypt.compare(
-            credentials.password,
-            user.password
-          );
+        const isPasswordCorrect = await bcrypt.compare(
+          credentials.password,
+          user.password,
+        );
 
-          if (!isPasswordCorrect) {
-            throw new Error("Incorrect password.");
-          }
+        if (!isPasswordCorrect) {
+          throw new Error("Incorrect password.");
         }
 
         const isCodeValid = credentials.verifyCode
@@ -57,7 +55,7 @@ export const authOptions: NextAuthOptions = {
         }
 
         return {
-           id: user._id.toString(),
+          id: user._id.toString(),
           _id: user._id.toString(),
           username: user.username,
           email: user.email,
@@ -66,42 +64,53 @@ export const authOptions: NextAuthOptions = {
         };
       },
     }),
+
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
   ],
+
   callbacks: {
     async signIn({ user, account }) {
       if (account?.provider === "google") {
         await dbConnect();
 
-        const existingUser = await UserModel.findOne({
-          email: user.email,
+        const providerUser = await UserModel.findOne({
+          provider: "google",
+          providerId: account.providerAccountId,
         });
+        if (providerUser) return true;
 
-        if (!existingUser) {
-          return false
-        }
-
-        if (!existingUser.isVerified) {
-         return false 
-        }
-
-        // Attach DB fields to user object
-        user._id = existingUser._id.toString();
-        user.username = existingUser.username;
-        user.isVerified = existingUser.isVerified;
-        user.isAcceptingMessage =
-          existingUser.isAcceptingMessage;
-
+        await UserModel.create({
+          email: user.email,
+          username: user.email?.split("@")[0], // simple username
+          isVerified: true, // Google verified
+          isAcceptingMessage: true,
+          provider: "google",
+          providerId: account.providerAccountId,
+        });
         return true;
       }
 
       return true;
     },
 
-    async jwt({ token, user }) {
+    async jwt({ token, user, account }) {
+      if (account?.provider === "google") {
+        await dbConnect();
+        const dbUser = await UserModel.findOne({
+          provider: "google",
+          providerId: account.providerAccountId,
+        });
+
+        if (dbUser) {
+          token._id = dbUser._id.toString();
+          token.username = dbUser.username;
+          token.isVerified = dbUser.isVerified;
+        }
+        return token;
+      }
       if (user) {
         token._id = user._id;
         token.username = user.username;
@@ -112,22 +121,20 @@ export const authOptions: NextAuthOptions = {
     },
 
     async session({ session, token }) {
-      if (token) {
-        session.user = {
-          _id: token._id,
-          username: token.username,
-          isVerified: token.isVerified,
-          isAcceptingMessage:
-            token.isAcceptingMessage,
-        };
-      }
+      session.user = {
+        _id: token._id,
+        username: token.username,
+        isVerified: token.isVerified,
+        isAcceptingMessage: token.isAcceptingMessage,
+      };
+
       return session;
     },
   },
 
   pages: {
     signIn: "/sign-in",
-    error:"/sign-in"
+    error: "/error",
   },
 
   session: {

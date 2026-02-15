@@ -3,7 +3,12 @@
 import Link from "next/link";
 import { Button } from "../components/ui/button";
 import { ArrowRight, Loader, Mail } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
 import Autoplay from "embla-carousel-autoplay";
 import messages from "../message.json";
 import {
@@ -23,9 +28,6 @@ export default function Page() {
       router.replace("/dashboard");
     }
   }, [status, router]);
-
-  
-
 
   const handleLoading = () => {
     setLoading(true);
