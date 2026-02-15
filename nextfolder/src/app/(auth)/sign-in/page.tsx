@@ -13,7 +13,7 @@ import { signInSchema } from "../../../Schemas/signInSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "../../../components/ui/input";
 import { Button } from "../../../components/ui/button";
-import {Separator} from "../../../components/ui/separator"
+import {Separator} from "../../../components/ui/separator";
 import { Loader2 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -23,11 +23,11 @@ import { useForm } from "react-hook-form";
 import { signIn, useSession } from "next-auth/react";
 import * as Z from "zod";
 
+
 const Page = () => {
   const { data: session } = useSession();
   console.log("session", session);
   const searchParams = useSearchParams();
-  const error = searchParams.get("error");
   const router = useRouter();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -48,73 +48,39 @@ const Page = () => {
   });
 
 useEffect(() => {
-    const error = searchParams.get("error");
-    if (error) {
-        toast({
-          title: "Login Failed",
-          description: decodeURIComponent(error),
-          variant: "destructive",
-        });
-
-      router.replace("/sign-in");
+  const error = searchParams.get("error");
+  if (error) {
+    if (error === "AccessDenied") {
+     toast({
+      title: "Login Failed",
+      description: "No account found. Please sign up first.",
+      variant: "destructive",
+    });
     }
-  }, [searchParams, router]);
-  
-const handleGoogleSignIn = async ()=>{
- try {
+    router.replace("/sign-in");
+  }
+}, [searchParams, router]);
+
+
+
+
+const handleGoogleSignIn = ()=>{
   setIsSubmitting(true);
-  const result = await signIn("google",{
+  signIn("google",{
     callbackUrl:"/dashboard"
   });
-    console.log("Result",result?.error);
-    setIsSubmitting(false);
-    if (result?.error) {
-      if (result.error === "CredentialsSignin") {
-        toast({
-          title: "Login Failed",
-          description: result.error,
-          variant: "destructive",
-        });
-      }
-      else{
-      toast({
-        title: "Login Failed",
-        description: "wrong password",
-        variant: "destructive",
-      });
-      }
-      return;
-    }
-
-    if (result?.url) {
-      console.log("result", result?.url);
-
-      toast({
-        title: "Success",
-        description: "Successfully signed in! Redirecting...",
-      });
-      router.replace(result.url);
-    }  
-  
- } catch (e) {
-  setIsSubmitting(false);
-  toast({
-    title: "Error",
-    description: "Failed to sign in with Google",
-    variant: "destructive",
-  });
- }
 }
 
 const handleTwitterSignIn = async ()=>{
 
 }
 
+
 const handleInstaGramSignIn = async ()=>{
 
 }
 
-  const onSubmit = async (data: Z.infer<typeof signInSchema>) => {
+const onSubmit = async (data: Z.infer<typeof signInSchema>) => {
     
     setIsSubmitting(true);
     const result = await signIn("credentials", {
@@ -153,8 +119,7 @@ const handleInstaGramSignIn = async ()=>{
       router.replace(result.url);
     }
   };
-
-  return (
+ return (
     <div className="flex justify-center items-center min-h-screen bg-gray-300 dark:bg-black">
       <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md dark:bg-gray-900">
         <div className="text-center">
@@ -241,6 +206,7 @@ const handleInstaGramSignIn = async ()=>{
       </div>
     </div>
   );
+
 };
 
 export default Page;

@@ -81,15 +81,11 @@ export const authOptions: NextAuthOptions = {
         });
 
         if (!existingUser) {
-          throw new Error(
-            "No account found with this email. Please sign up first."
-          );
+          return false
         }
 
         if (!existingUser.isVerified) {
-          throw new Error(
-            "Please verify your account before logging in."
-          );
+         return false 
         }
 
         // Attach DB fields to user object
@@ -131,6 +127,7 @@ export const authOptions: NextAuthOptions = {
 
   pages: {
     signIn: "/sign-in",
+    error:"/sign-in"
   },
 
   session: {
