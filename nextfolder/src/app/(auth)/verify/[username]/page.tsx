@@ -20,6 +20,7 @@ import { useParams, useRouter } from "next/navigation";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import * as Z from "zod";
+import { signIn } from "next-auth/react";
 
 const Verifyaccount = () => {
   const params = useParams<{ username: string }>();
@@ -46,9 +47,21 @@ const Verifyaccount = () => {
 
       toast({
         title: "Success",
-        description: `${response.data.message}. Please sign in.`,
+        description: response.data.message,
       });
-      router.replace("/sign-in");
+
+      const loginRes = await signIn("credentials", {
+        redirect: false,
+        identifier: params.username,
+        verifyCode: data.code,
+      });
+
+      console.log("Login response", loginRes);
+
+      if (loginRes && loginRes.ok) {
+        console.log("Login successful");
+        router.replace(`/dashboard?welcome=true`);
+      }
       setisSubmitting(false);
     } catch (error) {
       console.error("Error in signup of user", error);
