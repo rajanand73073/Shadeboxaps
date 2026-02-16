@@ -74,6 +74,7 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async signIn({ user, account }) {
       if (account?.provider === "google") {
+        
         await dbConnect();
 
         const providerUser = await UserModel.findOne({
@@ -84,7 +85,7 @@ export const authOptions: NextAuthOptions = {
 
         await UserModel.create({
           email: user.email,
-          username: user.email?.split("@")[0], // simple username
+          username: user.name,
           isVerified: true, // Google verified
           isAcceptingMessage: true,
           provider: "google",
@@ -134,7 +135,7 @@ export const authOptions: NextAuthOptions = {
 
   pages: {
     signIn: "/sign-in",
-    error: "/sign-in",
+    error: "/auth-error",
   },
 
   session: {
