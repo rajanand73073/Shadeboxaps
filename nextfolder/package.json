@@ -33,7 +33,7 @@
     "express": "^5.2.1",
     "framer-motion": "^12.28.1",
     "llamaai": "^1.0.4",
-    "lucide-react": "^0.473.0",
+    "lucide-react": "^0.562.0",
     "mongoose": "^8.9.5",
     "nanoid": "^5.1.6",
     "next": "15.1.11",
