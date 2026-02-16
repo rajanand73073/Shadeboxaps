@@ -7,8 +7,6 @@ import dbConnect from "../../../../lib/dbConnect";
 import UserModel from "../../../../model/User.model";
 
 export const authOptions: NextAuthOptions = {
-  
-
   providers: [
     CredentialsProvider({
       id: "credentials",
@@ -18,8 +16,7 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" },
         verifyCode: { label: "Verification Code", type: "text" },
       },
-
-      async authorize(credentials) {
+      async authorize(credentials: Record<string, string> | undefined) {
         if (!credentials) return null;
 
         await dbConnect();
@@ -39,19 +36,15 @@ export const authOptions: NextAuthOptions = {
           throw new Error("Please verify your account before logging in.");
         }
 
-        if (user.provider === "google") {
-         throw new Error(
-         "This account was created with Google. Please use Google login."
-       );
-       }
+        if (credentials.password) {
+          const isPasswordCorrect = await bcrypt.compare(
+            credentials.password,
+            user.password,
+          );
 
-        const isPasswordCorrect = await bcrypt.compare(
-          credentials.password,
-          user.password,
-        );
-
-        if (!isPasswordCorrect) {
-          throw new Error("Incorrect password.");
+          if (!isPasswordCorrect) {
+            throw new Error("Incorrect password.");
+          }
         }
 
         const isCodeValid = credentials.verifyCode
@@ -82,7 +75,6 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async signIn({ user, account }) {
       if (account?.provider === "google") {
-        
         await dbConnect();
 
         const providerUser = await UserModel.findOne({
@@ -93,9 +85,11 @@ export const authOptions: NextAuthOptions = {
 
         await UserModel.create({
           email: user.email,
-          username: user.email?.split("@")[0].split('') // Split into array of characters
-               .filter(char => isNaN(Number(char))) // Filter out numeric characters
-               .join(''),// Join remaining characters back into a string
+          username: user.email
+            ?.split("@")[0]
+            .split("") // Split into array of characters
+            .filter((char) => isNaN(Number(char))) // Filter out numeric characters
+            .join(""), // Join remaining characters back into a string
           isVerified: true, // Google verified
           isAcceptingMessage: true,
           provider: "google",
@@ -122,6 +116,7 @@ export const authOptions: NextAuthOptions = {
         }
         return token;
       }
+
       if (user) {
         token._id = user._id;
         token.username = user.username;
