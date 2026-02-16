@@ -14,8 +14,8 @@
 - If user SIGNUP using credentials then receive OTP for verified user.
 - BUT if User SigUp Using Oauth Provider then Verified User without OTP
 - If User SignIN using Googleauth or credntial email and both have same email then return same token
-## 2.Reply Rules (Anonymous Messaging)
 
+## 2.Reply Rules (Anonymous Messaging)
 - Replies are allowed only to authenticated anonymous senders
 - Replies are delivered via in-app inbox
 - Receiver never sees sender’s real identity

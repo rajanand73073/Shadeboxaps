@@ -63,22 +63,14 @@ const Page = () => {
 
     setIsSubmitting(false);
     if (result?.error) {
-      if (result.error === "CredentialsSignin") {
+      console.log("Error while sigin",result.error);
         toast({
           title: "Login Failed",
           description: result.error,
           variant: "destructive",
         });
-      } else {
-        toast({
-          title: "Login Failed",
-          description: "wrong password",
-          variant: "destructive",
-        });
       }
-      return;
-    }
-
+    
     if (result?.url) {
       console.log("result", result?.url);
 

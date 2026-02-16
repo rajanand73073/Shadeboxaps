@@ -10,6 +10,10 @@ import { signUpSchema } from "../../../Schemas/signUpSchema";
 import { useEffect } from "react";
 import axios, { AxiosError } from "axios";
 import { ApiResponse } from "../../../types/ApiResponse";
+import Image from "next/image";
+import { Separator } from "../../../components/ui/separator";
+
+
 import {
   Form,
   FormControl,
@@ -23,11 +27,13 @@ import { Input } from "../../../components/ui/input";
 import { Button } from "../../../components/ui/button";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
+import { signIn } from "next-auth/react";
+
 
 const Page = () => {
   const [username, setusername] = useState("");
   const [usernamemessage, setusernamemessage] = useState("");
-  const [isCheckingUsername, setisCheckingUsername] = useState(false);
+  const [, setisCheckingUsername] = useState(false);
   const [isSubmitting, setisSubmitting] = useState(false);
   const { toast } = useToast();
   const router = useRouter();
@@ -91,6 +97,13 @@ const Page = () => {
       setisSubmitting(false);
     }
   };
+
+  const handleGoogleSignIn = () => {
+      setisSubmitting(true);
+      signIn("google", {
+        callbackUrl: "/dashboard",
+      });
+    };
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-300 dark:bg-black overflow-hidden">
@@ -175,12 +188,30 @@ const Page = () => {
                 )}
               </Button>
 
-              <Link href="/sign-in" className="text-blue-500 hover:underline ">
-                Already have an account? Login here
-              </Link>
+            
             </div>
           </form>
         </Form>
+
+        <Separator/>
+
+         <div className="flex flex-col">
+          <div className="flex justify-center">
+            <Button variant="ghost" onClick={handleGoogleSignIn}>
+              <Image
+                src="/google.png"
+                alt="Google Sign In"
+                width={32}
+                height={32}
+              />
+            </Button>
+          </div>
+          <div className="mt-8 text-center">
+              <Link href="/sign-in" className="text-blue-500 hover:underline ">
+                Already have an account? Login here
+              </Link>
+          </div>
+        </div>
       </div>
     </div>
   );

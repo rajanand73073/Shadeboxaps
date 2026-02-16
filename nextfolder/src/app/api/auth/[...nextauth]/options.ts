@@ -7,6 +7,8 @@ import dbConnect from "../../../../lib/dbConnect";
 import UserModel from "../../../../model/User.model";
 
 export const authOptions: NextAuthOptions = {
+  
+
   providers: [
     CredentialsProvider({
       id: "credentials",
@@ -36,6 +38,12 @@ export const authOptions: NextAuthOptions = {
         if (!user.isVerified) {
           throw new Error("Please verify your account before logging in.");
         }
+
+        if (user.provider === "google") {
+         throw new Error(
+         "This account was created with Google. Please use Google login."
+       );
+       }
 
         const isPasswordCorrect = await bcrypt.compare(
           credentials.password,
