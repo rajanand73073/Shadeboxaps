@@ -78,8 +78,7 @@ export const authOptions: NextAuthOptions = {
         await dbConnect();
 
         const providerUser = await UserModel.findOne({
-          provider: "google",
-          providerId: account.providerAccountId,
+          email: user.email,
         });
         if (providerUser) return true;
 
