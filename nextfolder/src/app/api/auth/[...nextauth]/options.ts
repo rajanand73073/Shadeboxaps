@@ -85,7 +85,9 @@ export const authOptions: NextAuthOptions = {
 
         await UserModel.create({
           email: user.email,
-          username: user.name,
+          username: user.email?.split("@")[0].split('') // Split into array of characters
+               .filter(char => isNaN(Number(char))) // Filter out numeric characters
+               .join(''),// Join remaining characters back into a string
           isVerified: true, // Google verified
           isAcceptingMessage: true,
           provider: "google",
