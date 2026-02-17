@@ -3,7 +3,7 @@ import mongoose, { Schema, Document, Types } from "mongoose";
 export interface Message extends Document {
   content: string;
   createdAt: Date;
-  status:string
+  status: string;
 }
 
 const MessageSchema: Schema<Message> = new Schema({
@@ -11,9 +11,9 @@ const MessageSchema: Schema<Message> = new Schema({
     type: String,
     required: true,
   },
-  status:{
-    type:String,
-    required:true
+  status: {
+    type: String,
+    required: true,
   },
   createdAt: {
     type: Date,

@@ -205,6 +205,7 @@ function DashboardClientInner() {
               key={String(message?._id)}
               message={message}
               onMessageDelete={handleDeleteMessage}
+              receiver={username ?? "unknown"}
             />
           ))}
         </div>

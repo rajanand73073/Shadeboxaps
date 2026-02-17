@@ -22,16 +22,55 @@ import {
 } from "./ui/alert-dialog";
 import { Button } from "./ui/button";
 import { Message } from "../model/User.model";
-import { X,SendHorizontal } from "lucide-react";
+import { X, SendHorizontal } from "lucide-react";
+import axios from "axios";
+import { useState } from "react";
+import { useToast } from "../hooks/use-toast";
 
 type MessagCardProps = {
   message: Message;
   onMessageDelete: (messageId: string) => void;
+  receiver: string;
 };
 
-const MessageCard = ({ message, onMessageDelete }: MessagCardProps) => {
+const MessageCard = ({
+  message,
+  onMessageDelete,
+  receiver,
+}: MessagCardProps) => {
+  const { toast } = useToast();
+  const [Content, setContent] = useState(" ");
   const handleMessagedelete = () => {
     onMessageDelete(String(message._id));
+  };
+
+  const handleSendMessage = async () => {
+    try {
+      const response = await axios.post("/api/send-message", {
+        username: message.status,
+        content: Content,
+        Status: receiver,
+      });
+      if (response.data.success) {
+        toast({
+          title: "Success",
+          description: "Message Sent Successfully",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: response.data.message,
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description:
+          error instanceof Error ? error.message : "Error sending message",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -68,14 +107,18 @@ const MessageCard = ({ message, onMessageDelete }: MessagCardProps) => {
         <p>{message.content}</p>
       </CardContent>
       {/*here i forgot to add simple logic of unauthenticated by using simply conditional rendering.*/}
-      {message.status === "authenticated" && (
+      {message.status !== "unauthenticated" && (
         <CardFooter>
-          <div className=" flex justify-between gap-5 ">
+          <div className=" flex justify-between space-x-8 w-full ">
             <input
-              type="text"
               className="w-full p-2 border-solid outline-blue-500 border border-gray-300 rounded-sm "
+              placeholder="Type your message here."
+              value={Content}
+              onChange={(e) => setContent(e.target.value)}
             />
-            <SendHorizontal className="-rotate-45" />
+            <Button onClick={handleSendMessage} variant={"ghost"}>
+              <SendHorizontal />
+            </Button>
           </div>
         </CardFooter>
       )}

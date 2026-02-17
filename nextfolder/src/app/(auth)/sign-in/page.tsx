@@ -63,14 +63,14 @@ const Page = () => {
 
     setIsSubmitting(false);
     if (result?.error) {
-      console.log("Error while sigin",result.error);
-        toast({
-          title: "Login Failed",
-          description: result.error,
-          variant: "destructive",
-        });
-      }
-    
+      console.log("Error while sigin", result.error);
+      toast({
+        title: "Login Failed",
+        description: result.error,
+        variant: "destructive",
+      });
+    }
+
     if (result?.url) {
       console.log("result", result?.url);
 

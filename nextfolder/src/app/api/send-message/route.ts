@@ -6,10 +6,12 @@ import { Message } from "../../../model/User.model";
 export async function POST(request: Request) {
   await dbConnect();
 
-  const { username, content ,Status} = await request.json();
+  const { username, content, Status: status } = await request.json();
 
   try {
     const user = await UserModel.findOne({ username });
+    console.log("User", user);
+
     if (!user) {
       return Response.json(
         {
@@ -30,7 +32,11 @@ export async function POST(request: Request) {
       );
     }
 
-    const newmessage = { content, createdAt: new Date(), status: Status };
+    const newmessage = {
+      content,
+      createdAt: new Date(),
+      status: status,
+    } as Message;
     user.messages.push(newmessage as Message);
     await user.save();
     return Response.json(

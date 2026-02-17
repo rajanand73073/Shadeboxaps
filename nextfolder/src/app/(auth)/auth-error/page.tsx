@@ -1,11 +1,13 @@
-
-
 import Link from "next/link";
 
 //App Router gives search params directly to page and this used because of suspense error happened while using useSearchParams hook in this page
-export default async function AuthErrorPage( {searchParams}: {searchParams:  Promise<{ error?: string }>;}) {
+export default async function AuthErrorPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>;
+}) {
   const params = await searchParams;
-  const error = params?.error;  
+  const error = params?.error;
   let message = "Something went wrong.";
 
   switch (error) {
