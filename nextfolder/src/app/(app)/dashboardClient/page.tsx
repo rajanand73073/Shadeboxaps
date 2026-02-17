@@ -27,6 +27,7 @@ function DashboardClientInner() {
   const { register, watch, setValue } = form;
   const acceptMessages = watch("acceptMessages");
   const { data: session } = useSession();
+  //renaming data to session for better readability
   const username = session?.user.username;
   console.log("session in dashboard", session);
 

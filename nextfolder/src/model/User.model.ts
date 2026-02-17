@@ -3,12 +3,17 @@ import mongoose, { Schema, Document, Types } from "mongoose";
 export interface Message extends Document {
   content: string;
   createdAt: Date;
+  status:string
 }
 
 const MessageSchema: Schema<Message> = new Schema({
   content: {
     type: String,
     required: true,
+  },
+  status:{
+    type:String,
+    required:true
   },
   createdAt: {
     type: Date,

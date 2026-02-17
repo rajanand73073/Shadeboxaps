@@ -22,7 +22,7 @@ import {
 } from "./ui/alert-dialog";
 import { Button } from "./ui/button";
 import { Message } from "../model/User.model";
-import { X } from "lucide-react";
+import { X,SendHorizontal } from "lucide-react";
 
 type MessagCardProps = {
   message: Message;
@@ -67,12 +67,18 @@ const MessageCard = ({ message, onMessageDelete }: MessagCardProps) => {
       <CardContent>
         <p>{message.content}</p>
       </CardContent>
-      <CardFooter>
-        <input
-          type="text"
-          className="w-full p-2 border-solid outline-blue-500 border border-gray-300 rounded-sm"
-        />
-      </CardFooter>
+      {/*here i forgot to add simple logic of unauthenticated by using simply conditional rendering.*/}
+      {message.status === "authenticated" && (
+        <CardFooter>
+          <div className=" flex justify-between gap-5 ">
+            <input
+              type="text"
+              className="w-full p-2 border-solid outline-blue-500 border border-gray-300 rounded-sm "
+            />
+            <SendHorizontal className="-rotate-45" />
+          </div>
+        </CardFooter>
+      )}
     </Card>
   );
 };

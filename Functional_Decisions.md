@@ -1,6 +1,6 @@
 ## 1. Authentication
 
-- Users must authenticate to RECEIVE messages/Crete private or public chat room and use other benefits
+- Users must authenticate to RECEIVE messages/Create private or public chat room and use other benefits
 - Permissions are requested only when required by a feature
 - Anonymous messages can be sent by:
   - Unauthenticated users (guest anonymous)

@@ -2,19 +2,34 @@
 
 import { Button } from "../../../components/ui/button";
 import { Textarea } from "../../../components/ui/textarea";
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import axios, { AxiosError } from "axios";
 import { ApiResponse } from "../../../types/ApiResponse";
 import { useToast } from "../../../hooks/use-toast";
+import { useSession } from "next-auth/react";
+
 
 const Page = () => {
+  const [Status,setStatus] = useState("")
   const [username, setUsername] = useState("");
   const [content, setContent] = useState("");
   const { toast } = useToast();
+  const { data:session } = useSession();
+  //renaming data to session for better readability
 
+ useEffect(() => {
+    console.log("Session",session);
+  if(!session){
+    setStatus("unauthenticated")
+  }else if(session && session.user.isVerified){
+    setStatus("authenticated")
+  }
+ }, [])
+ 
+  
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
+    
     if (!username || !content) {
       toast({
         title: "Error",
@@ -26,6 +41,7 @@ const Page = () => {
       const response = await axios.post<ApiResponse>("/api/send-message", {
         username,
         content,
+        Status
       });
       if (response.data.success) {
         toast({
