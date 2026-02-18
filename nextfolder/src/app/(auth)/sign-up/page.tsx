@@ -99,7 +99,7 @@ const Page = () => {
   const handleGoogleSignIn = () => {
     setisSubmitting(true);
     signIn("google", {
-      callbackUrl: "/dashboard",
+      callbackUrl: `/dashboard?welcome=true`,
     });
   };
 

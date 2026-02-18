@@ -13,6 +13,7 @@ import { Loader2, RefreshCcw, Copy, Check } from "lucide-react";
 import { Separator } from "../../../components/ui/separator";
 import MessageCard from "../../../components/messageCard";
 import { useSearchParams } from "next/navigation";
+import Image from "next/image";
 
 // 👇 Inner component so that `useSearchParams` is safe inside Suspense
 function DashboardClientInner() {
@@ -21,7 +22,6 @@ function DashboardClientInner() {
   const [isSwitchLoading, setIsSwitchLoading] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
   const [copied, setCopied] = useState(false);
-
   const { toast } = useToast();
   const form = useForm();
   const { register, watch, setValue } = form;
@@ -127,7 +127,7 @@ function DashboardClientInner() {
   // Copy unique link
   const url = process.env.NEXT_PUBLIC_APP_URL;
   const handleCopy = () => {
-    navigator.clipboard.writeText(`${url}/send/${username}`);
+    navigator.clipboard.writeText(`${url}/SendMessage`);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -138,17 +138,39 @@ function DashboardClientInner() {
     isAcceptingMessages();
     if (welcome) setShowPopup(true);
   }, [session, welcome, fetchMessages, isAcceptingMessages]);
+   
+
+
+  const shareWhatsapp = () => {
+    window.open(
+      `https://wa.me/?text=${encodeURIComponent(url + "/SendMessage")}`,
+      "_blank",
+    );
+  };
+
+  const shareTwitter = () => {
+    window.open(
+      `https://twitter.com/intent/tweet?text=${encodeURIComponent(url + "/SendMessage")}`,
+      "_blank",
+    );
+  };
+ 
+  const shareInstagram = () => {
+    const instagramShareUrl = `https://www.instagram.com/?url=${encodeURIComponent(url + "/SendMessage")}`;
+    window.open(instagramShareUrl, "_blank");
+  }
+
 
   return (
     <>
       {/* 🎉 Welcome popup */}
       {showPopup && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 ">
-          <div className="bg-gray-300 p-6 rounded-2xl shadow-lg max-w-md text-center dark:bg-gray-900">
+          <div className="bg-gray-300 p-6 rounded-2xl shadow-lg max-w-md text-center dark:bg-gray-900 space-y-6">
             <h2 className="text-xl font-bold mb-2">🎉 Welcome to ShadeBox!</h2>
             <div className="flex items-center gap-2 p-2 border rounded-md ">
               <span className="truncate text-sm">
-                Your unique link: {`${url}/send/${username}`}
+                Your unique link: {`${url}/SendMessage`}
               </span>
               <button
                 onClick={handleCopy}
@@ -161,12 +183,35 @@ function DashboardClientInner() {
                 )}
               </button>
             </div>
+            <div>
+              <span className=" font-bold rounded p-1 my-2">Share  link To connect Socially but Anonymously!</span>
+               <div className="flex justify-center gap-6 mt-4">
+          <button
+            onClick={shareWhatsapp}
+            className="p-3 rounded-full  text-white hover:scale-110 transition"
+          >
+            <Image src="/whatsapp.png" alt="WhatsApp" width={40} height={40} />
+          </button>
+            
+            <Button variant="ghost" onClick={shareTwitter}    className="hover:scale-110 transition mt-3">
+         
+            <Image src="/twitter.png" alt="Twitter" width={40} height={40} />
+          </Button>
             <button
+            onClick={shareInstagram}
+            className="p-3 rounded-full  text-white hover:scale-110 transition"
+          >
+            <Image src="/instagram.png" alt="Instagram  " width={40} height={40} />
+          </button>
+        </div>
+
+            </div>
+            <Button
               className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
               onClick={() => setShowPopup(false)}
             >
               Got it!
-            </button>
+            </Button>
           </div>
         </div>
       )}

@@ -45,6 +45,14 @@ const MessageCard = ({
   };
 
   const handleSendMessage = async () => {
+    if (!Content.trim()) {
+      toast({
+        title: "Error",
+        description: "Message content cannot be empty",
+        variant: "destructive",
+      });
+      return;
+    } 
     try {
       const response = await axios.post("/api/send-message", {
         username: message.status,
@@ -116,8 +124,8 @@ const MessageCard = ({
               value={Content}
               onChange={(e) => setContent(e.target.value)}
             />
-            <Button onClick={handleSendMessage} variant={"ghost"}>
-              <SendHorizontal />
+            <Button onClick={handleSendMessage} variant={"ghost"} className="" >
+              <SendHorizontal className="-rotate-45 " />
             </Button>
           </div>
         </CardFooter>

@@ -9,6 +9,8 @@ export async function POST(request: Request) {
   await dbConnect();
 
   const session = await getServerSession(authOptions);
+  console.log("Session In delete-api",session);
+  
 
   try {
     const user: User = session?.user as User;
@@ -35,14 +37,16 @@ export async function POST(request: Request) {
         { status: 400 },
       );
     }
-    const deletedMessage = await UserModel.findOneAndUpdate({
-      _id: userId,
-      $pull: {
-        messages: {
-          _id: messageId,
-        },
-      },
-    });
+    const deletedMessage = await UserModel.findOneAndUpdate(
+  { _id: userId }, // filter
+  {
+    $pull: {
+      messages: { _id: new mongoose.Types.ObjectId(messageId) },
+    },
+  }, // update
+  { new: true }
+);
+
 
     if (!deletedMessage) {
       return Response.json({

@@ -1,12 +1,12 @@
 "use client";
 
-import { Button } from "../../../components/ui/button";
-import { Textarea } from "../../../components/ui/textarea";
 import { useState, useEffect } from "react";
 import axios, { AxiosError } from "axios";
 import { ApiResponse } from "../../../types/ApiResponse";
 import { useToast } from "../../../hooks/use-toast";
 import { useSession } from "next-auth/react";
+import { Paperclip } from "lucide-react";
+import { Textarea } from "../../../components/ui/textarea";
 
 const Page = () => {
   const [Status, setStatus] = useState("");
@@ -67,24 +67,69 @@ const Page = () => {
     }
   };
 
+  const handleFileUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    console.log("Selected file:", file);
+    try {
+      // Here you will:
+      // 1. Upload to Cloudinary
+      const formData = new FormData();
+       formData.append("file", file);
+      const response = await axios.post("/api/upload", formData);
+      if (response && response.data) {
+        console.log("Cloudinary URL:", response.data.secure_url);
+        // You can set this URL to state or directly send it via socket
+      } else {
+        console.error("Failed to upload file to Cloudinary.");
+      }
+      // 2. Get URL
+      // 3. Send URL via socket
+    } catch (error) {
+      console.error("Error uploading file:", error);
+    }
+  };
+
   return (
     <>
       <form onSubmit={handleSubmit}>
-        <div className="flex flex-col items-center justify-center mx-auto  my-10 ">
+        <div className="flex flex-col items-center justify-center mx-auto my-10 w-full max-w-md">
           <input
             type="text"
             placeholder="username"
-            className="mb-4 p-2 border rounded w-full max-w-md"
+            className="mb-4 p-2 border rounded w-full"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
           />
-          <div className="grid  gap-2 p-2  rounded w-full max-w-md">
+
+          {/* Chat Input Section */}
+          <div className="flex items-center gap-2 w-full border rounded-xl p-2 shadow-sm">
+            {/* Upload Button */}
+            <label className="cursor-pointer flex items-center justify-center w-20 h-10 rounded-sm  hover:bg-gray-100 dark:hover:bg-gray-700">
+              <Paperclip />
+              <input
+                type="file"
+                accept="image/*,video/*,audio/*"
+                className="hidden"
+                onChange={handleFileUpload}
+              />
+            </label>
+
+            {/* Message Input */}
             <Textarea
               placeholder="Type your message here."
               value={content}
               onChange={(e) => setContent(e.target.value)}
+              className="border-none"
             />
-            <Button>Send message</Button>
+
+            {/* Send Button */}
+            <button
+              type="submit"
+              className=" px-4 py-2 rounded-lg hover:bg-gray-700 bg-black transition dark:hover:bg-gray-700 dark:bg-blue-500 text-white font-semibold"
+            >
+              Send
+            </button>
           </div>
         </div>
       </form>
