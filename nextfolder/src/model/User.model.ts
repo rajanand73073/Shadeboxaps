@@ -2,6 +2,7 @@ import mongoose, { Schema, Document, Types } from "mongoose";
 
 export interface Message extends Document {
   content: string;
+  mediaUrl?:string
   createdAt: Date;
   status: string;
 }
@@ -10,6 +11,10 @@ const MessageSchema: Schema<Message> = new Schema({
   content: {
     type: String,
     required: true,
+  },
+  mediaUrl:{
+    type:String,
+    default:null
   },
   status: {
     type: String,

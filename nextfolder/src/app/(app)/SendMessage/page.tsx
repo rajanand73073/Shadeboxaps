@@ -11,9 +11,10 @@ import { Textarea } from "../../../components/ui/textarea";
 const Page = () => {
   const [Status, setStatus] = useState("");
   const [username, setUsername] = useState("");
-  const [content, setContent] = useState("");
+  const [Content, setContent] = useState("");
   const { toast } = useToast();
   const { data: session } = useSession();
+  const [MediaUrl, setMediaUrl] = useState("");
   //renaming data to session for better readability
 
   useEffect(() => {
@@ -27,7 +28,7 @@ const Page = () => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (!username || !content) {
+    if (!username || !Content) {
       toast({
         title: "Error",
         description: "Please filled all fields",
@@ -37,8 +38,9 @@ const Page = () => {
     try {
       const response = await axios.post<ApiResponse>("/api/send-message", {
         username,
-        content,
+        content: Content,
         Status,
+        MediaUrl
       });
       if (response.data.success) {
         toast({
@@ -47,6 +49,7 @@ const Page = () => {
         });
         setUsername("");
         setContent("");
+        setMediaUrl("");
       }
     } catch (error) {
       console.error("Error sending message:", error);
@@ -79,6 +82,7 @@ const Page = () => {
       const response = await axios.post("/api/upload", formData);
       if (response && response.data) {
         console.log("Cloudinary URL:", response.data.secure_url);
+        setMediaUrl(response.data.secure_url)
         // You can set this URL to state or directly send it via socket
       } else {
         console.error("Failed to upload file to Cloudinary.");
@@ -109,7 +113,7 @@ const Page = () => {
               <Paperclip />
               <input
                 type="file"
-                accept="image/*,video/*,audio/*"
+                accept="image/*"
                 className="hidden"
                 onChange={handleFileUpload}
               />
@@ -118,7 +122,7 @@ const Page = () => {
             {/* Message Input */}
             <Textarea
               placeholder="Type your message here."
-              value={content}
+              value={Content}
               onChange={(e) => setContent(e.target.value)}
               className="border-none"
             />

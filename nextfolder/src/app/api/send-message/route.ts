@@ -6,7 +6,7 @@ import { Message } from "../../../model/User.model";
 export async function POST(request: Request) {
   await dbConnect();
 
-  const { username, content, Status: status } = await request.json();
+  const { username, content, Status: status, MediaUrl } = await request.json();
 
   try {
     const user = await UserModel.findOne({ username });
@@ -29,6 +29,26 @@ export async function POST(request: Request) {
           message: "user is not acceptng messages",
         },
         { status: 401 },
+      );
+    }
+
+    if(MediaUrl){
+      const newmessage = {
+        content,
+        createdAt: new Date(),
+        status,
+        mediaUrl: MediaUrl
+      } as Message;
+      user.messages.push(newmessage as Message);
+      await user.save();
+      return Response.json(
+        {
+          success: true,
+          message: "send anonymous message with media",
+          newmessage,
+          user,
+        },
+        { status: 200 },
       );
     }
 

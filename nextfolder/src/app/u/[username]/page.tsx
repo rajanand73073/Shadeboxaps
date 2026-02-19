@@ -33,7 +33,6 @@ const { username } = useParams<{ username: string }>();
 
 
 Or access the property after assigning the whole object:
-
 const param = useParams<{ username: string }>();
 const username = param.username;
  */
