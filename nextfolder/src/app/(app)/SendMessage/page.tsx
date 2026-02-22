@@ -14,8 +14,9 @@ const Page = () => {
   const [Content, setContent] = useState("");
   const { toast } = useToast();
   const { data: session } = useSession();
-  const [MediaUrl, setMediaUrl] = useState("");
   //renaming data to session for better readability
+  const [MediaUrl, setMediaUrl] = useState("");
+  const [Media,setMedia] = useState<File | null>(null);
 
   useEffect(() => {
     if (!session) {
@@ -25,73 +26,77 @@ const Page = () => {
     }
   }, [session]);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+ const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  e.preventDefault();
 
-    if (!username || !Content) {
-      toast({
-        title: "Error",
-        description: "Please filled all fields",
-        variant: "destructive",
-      });
-    }
-    try {
-      const response = await axios.post<ApiResponse>("/api/send-message", {
-        username,
-        content: Content,
-        Status,
-        MediaUrl
-      });
-      if (response.data.success) {
-        toast({
-          title: "Success",
-          description: "Message sent successfully",
-        });
-        setUsername("");
-        setContent("");
-        setMediaUrl("");
-      }
-    } catch (error) {
-      console.error("Error sending message:", error);
-      const axiosError = error as AxiosError<ApiResponse>;
-      if (axiosError.response) {
-        toast({
-          title: "Error",
-          description: axiosError.response.data.message,
-          variant: "destructive",
-        });
+  if (!username || !Content) {
+    toast({
+      title: "Error",
+      description: "Please fill all fields",
+      variant: "destructive",
+    });
+    return;
+  }
+
+  let uploadedMediaUrl = "";
+
+  try {
+    // 1️⃣ If media exists → upload first
+    //When chaining async steps, pass data through local variables — not React state.
+    //React state updates are asynchronous.
+    if (Media) {
+      const formData = new FormData();
+      formData.append("file", Media);
+
+      const uploadResponse = await axios.post("/api/upload", formData);
+
+      if (uploadResponse?.data?.secure_url) {
+        uploadedMediaUrl = uploadResponse.data.secure_url;
+        console.log("Uploaded URL:", uploadedMediaUrl);
       } else {
-        toast({
-          title: "Error",
-          description: "An unknown error occurred",
-          variant: "destructive",
-        });
+        throw new Error("Media upload failed");
       }
     }
-  };
+
+    // 2️⃣ Now send message with correct media URL (if any)
+    const response = await axios.post<ApiResponse>("/api/send-message", {
+      username,
+      content: Content,
+      Status,
+      MediaUrl: uploadedMediaUrl, // 👈 use variable
+    }); 
+
+    if (response.data.success) {
+      toast({
+        title: "Success",
+        description: "Message sent successfully",
+      });
+
+      setUsername("");
+      setContent("");
+      setMediaUrl("");
+    }
+
+  } catch (error) {
+    console.error("Error:", error);
+
+    const axiosError = error as AxiosError<ApiResponse>;
+
+    toast({
+      title: "Error",
+      description:
+        axiosError.response?.data.message ||
+        "Something went wrong",
+      variant: "destructive",
+    });
+  }
+};
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     console.log("Selected file:", file);
-    try {
-      // Here you will:
-      // 1. Upload to Cloudinary
-      const formData = new FormData();
-       formData.append("file", file);
-      const response = await axios.post("/api/upload", formData);
-      if (response && response.data) {
-        console.log("Cloudinary URL:", response.data.secure_url);
-        setMediaUrl(response.data.secure_url)
-        // You can set this URL to state or directly send it via socket
-      } else {
-        console.error("Failed to upload file to Cloudinary.");
-      }
-      // 2. Get URL
-      // 3. Send URL via socket
-    } catch (error) {
-      console.error("Error uploading file:", error);
-    }
+    setMedia(file);
   };
 
   return (
