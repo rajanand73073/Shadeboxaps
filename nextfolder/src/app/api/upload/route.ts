@@ -8,7 +8,14 @@ export async function POST(req: Request) {
 
     if (!file) {
       return NextResponse.json(
-        { error: "No file provided" },
+        { success: false, message: "No file provided" },
+        { status: 400 }
+      );
+    }
+
+    if (!file.type.startsWith("image/")) {
+      return NextResponse.json(
+        { success: false, message: "Only photo uploads are allowed" },
         { status: 400 }
       );
     }
@@ -16,7 +23,7 @@ export async function POST(req: Request) {
     // File size limit (10MB)
     if (file.size > 10 * 1024 * 1024) {
       return NextResponse.json(
-        { error: "File too large" },
+        { success: false, message: "Photo is too large" },
         { status: 400 }
       );
     }
@@ -30,7 +37,7 @@ export async function POST(req: Request) {
     const uploadResult = await new Promise<any>((resolve, reject) => {
       const stream = cloudinary.uploader.upload_stream(
         {
-          resource_type: "auto",
+          resource_type: "image",
           folder: "shadebox",
         },
         (error, result) => {
@@ -53,7 +60,7 @@ export async function POST(req: Request) {
     console.error("Upload failed:", error);
 
     return NextResponse.json(
-      { error: "Internal Server Error" },
+      { success: false, message: "Internal Server Error" },
       { status: 500 }
     );
   }

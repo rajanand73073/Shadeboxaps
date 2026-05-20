@@ -24,7 +24,6 @@ const initializeSocket = (server: HttpServer): void => {
     console.log(`Client connected: ${socket.id}`);
     const anonyId = socket.handshake.auth.anonyId;
     console.log("anonyId", anonyId);
-
     socket.data.anonyId = anonyId;
 
     socket.on("join-room", async (roomId) => {

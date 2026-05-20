@@ -28,7 +28,7 @@
 
 ## 4. Messaging
 - Anyone with link/Username can send message
-- Messages can be text-only or photos or videos or all
+- Messages can be text-only or photos.
 - Max length: 500 chars
 
 ## 5. Inbox
@@ -44,8 +44,8 @@
 - Only once user can create private chat room within expiry time
 - Other members can join room with sharable link
 - Chat room is available  only for 1-2 hr
-
 - Report Abusive Ids if report > 10
+
  ###  Message Snippet 
 - reply
 - delete(only own message)
@@ -59,7 +59,10 @@
 - Room expires after a fixed duration (1–2 hours)
 - Room is accessible only via invite link
 - Rooms are deleted after expiry
-
+- if token availbale earlier then check whether it is expired or not
+   - if it not expired then join in the previous room
+   - else if token expired then remove token and create a new one 
+   
 ### Membership
 - Only authenticated users can join
 - No public discovery

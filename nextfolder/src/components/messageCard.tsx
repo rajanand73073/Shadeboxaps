@@ -28,6 +28,7 @@ import { useState } from "react";
 import { useToast } from "../hooks/use-toast";
 import { CldImage } from 'next-cloudinary'; 
 
+const isPhotoFile = (file: File) => file.type.startsWith("image/");
 
 type MessagCardProps = {
   message: Message;
@@ -97,6 +98,15 @@ const MessageCard = ({
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    if (!isPhotoFile(file)) {
+      toast({
+        title: "Error",
+        description: "Only photos can be uploaded",
+        variant: "destructive",
+      });
+      e.target.value = "";
+      return;
+    }
     console.log("Selected file:", file);
     try {
       // Here you will:
@@ -164,7 +174,7 @@ const MessageCard = ({
               <Paperclip />
               <input
                 type="file"
-                accept="image/*,video/*,audio/*"
+                accept="image/*"
                 className="hidden"
                 onChange={handleFileUpload}
               />

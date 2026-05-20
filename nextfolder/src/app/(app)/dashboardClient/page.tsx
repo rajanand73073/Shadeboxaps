@@ -9,16 +9,28 @@ import axios, { AxiosError } from "axios";
 import { Switch } from "../../../components/ui/switch";
 import { useSession } from "next-auth/react";
 import { Button } from "../../../components/ui/button";
-import { Loader2, RefreshCcw, Copy, Check } from "lucide-react";
+import {
+  Loader2,
+  RefreshCcw,
+  Copy,
+  Check,
+  Loader,
+  ArrowRight,
+} from "lucide-react";
 import { Separator } from "../../../components/ui/separator";
 import MessageCard from "../../../components/messageCard";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
+import {
+  createPrivateRoom,
+  getActivePrivateRoomId,
+} from "../../../lib/privateRoom";
 
 // 👇 Inner component so that `useSearchParams` is safe inside Suspense
 function DashboardClientInner() {
   const [Messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isJoiningPrivateRoom, setIsJoiningPrivateRoom] = useState(false);
   const [isSwitchLoading, setIsSwitchLoading] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -27,6 +39,7 @@ function DashboardClientInner() {
   const { register, watch, setValue } = form;
   const acceptMessages = watch("acceptMessages");
   const { data: session } = useSession();
+  const router = useRouter();
   //renaming data to session for better readability
   const username = session?.user.username;
   console.log("session in dashboard", session);
@@ -138,8 +151,6 @@ function DashboardClientInner() {
     isAcceptingMessages();
     if (welcome) setShowPopup(true);
   }, [session, welcome, fetchMessages, isAcceptingMessages]);
-   
-
 
   const shareWhatsapp = () => {
     window.open(
@@ -154,12 +165,18 @@ function DashboardClientInner() {
       "_blank",
     );
   };
- 
+
   const shareInstagram = () => {
     const instagramShareUrl = `https://www.instagram.com/?url=${encodeURIComponent(url + "/SendMessage")}`;
     window.open(instagramShareUrl, "_blank");
-  }
+  };
 
+  const handlePrivateRoomJoin = () => {
+    setIsJoiningPrivateRoom(true);
+    const activeRoomId = getActivePrivateRoomId();
+    const roomId = activeRoomId ?? createPrivateRoom();
+    router.push(`/chat/chat-room/${roomId}`);
+  };
 
   return (
     <>
@@ -184,27 +201,46 @@ function DashboardClientInner() {
               </button>
             </div>
             <div>
-              <span className=" font-bold rounded p-1 my-2">Share  link To connect Socially but Anonymously!</span>
-               <div className="flex justify-center gap-6 mt-4">
-          <button
-            onClick={shareWhatsapp}
-            className="p-3 rounded-full  text-white hover:scale-110 transition"
-          >
-            <Image src="/whatsapp.png" alt="WhatsApp" width={40} height={40} />
-          </button>
-            
-            <Button variant="ghost" onClick={shareTwitter}    className="hover:scale-110 transition mt-3">
-         
-            <Image src="/twitter.png" alt="Twitter" width={40} height={40} />
-          </Button>
-            <button
-            onClick={shareInstagram}
-            className="p-3 rounded-full  text-white hover:scale-110 transition"
-          >
-            <Image src="/instagram.png" alt="Instagram  " width={40} height={40} />
-          </button>
-        </div>
+              <span className=" font-bold rounded p-1 my-2">
+                Share link To connect Socially but Anonymously!
+              </span>
+              <div className="flex justify-center gap-6 mt-4">
+                <button
+                  onClick={shareWhatsapp}
+                  className="p-3 rounded-full  text-white hover:scale-110 transition"
+                >
+                  <Image
+                    src="/whatsapp.png"
+                    alt="WhatsApp"
+                    width={40}
+                    height={40}
+                  />
+                </button>
 
+                <Button
+                  variant="ghost"
+                  onClick={shareTwitter}
+                  className="hover:scale-110 transition mt-3"
+                >
+                  <Image
+                    src="/twitter.png"
+                    alt="Twitter"
+                    width={40}
+                    height={40}
+                  />
+                </Button>
+                <button
+                  onClick={shareInstagram}
+                  className="p-3 rounded-full  text-white hover:scale-110 transition"
+                >
+                  <Image
+                    src="/instagram.png"
+                    alt="Instagram  "
+                    width={40}
+                    height={40}
+                  />
+                </button>
+              </div>
             </div>
             <Button
               className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
@@ -253,6 +289,24 @@ function DashboardClientInner() {
               receiver={username ?? "unknown"}
             />
           ))}
+        </div>
+        <div className="mt-5 flex ">
+          <Button
+            onClick={handlePrivateRoomJoin}
+            disabled={isJoiningPrivateRoom}
+            className="group relative px-8 py-8 rounded-xl text-lg font-medium overflow-hidden cursor-pointer bg-gradient-to-r from-blue-400/70 to-blue-200/70 backdrop-blur-sm border border-white/10 hover:border-indigo-500/30 hover:bg-gradient-to-r hover:from-gray-400/50 hover:to-gray-700/50 hover:bg-white/10 transition-all duration-300 dark:border-gray-500/30 dark:hover:border-indigo-500/50 dark:hover:bg-gradient-to-r dark:hover:from-gray-400/50 dark:hover:to-gray-700/50"
+          >
+            {isJoiningPrivateRoom ? (
+              <>
+                <Loader className="mr-2 h-4 w-4 animate-spin" />
+                Please Wait
+              </>
+            ) : (
+              <>
+                <ArrowRight /> Private Chat Room
+              </>
+            )}
+          </Button>
         </div>
       </div>
     </>

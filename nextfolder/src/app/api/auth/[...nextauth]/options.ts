@@ -32,6 +32,12 @@ export const authOptions: NextAuthOptions = {
           throw new Error("No user found with this identifier.");
         }
 
+        if (user.provider === "google") {
+          throw new Error(
+            "Email/username already exists with Google. Please sign in with Google.",
+          );
+        }
+
         if (!user.isVerified) {
           throw new Error("Please verify your account before logging in.");
         }

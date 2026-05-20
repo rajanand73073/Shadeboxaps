@@ -8,6 +8,8 @@ import { useSession } from "next-auth/react";
 import { Paperclip } from "lucide-react";
 import { Textarea } from "../../../components/ui/textarea";
 
+const isPhotoFile = (file: File) => file.type.startsWith("image/");
+
 const Page = () => {
   const [Status, setStatus] = useState("");
   const [username, setUsername] = useState("");
@@ -45,6 +47,15 @@ const Page = () => {
     //When chaining async steps, pass data through local variables — not React state.
     //React state updates are asynchronous.
     if (Media) {
+      if (!isPhotoFile(Media)) {
+        toast({
+          title: "Error",
+          description: "Only photos can be uploaded",
+          variant: "destructive",
+        });
+        return;
+      }
+
       const formData = new FormData();
       formData.append("file", Media);
 
@@ -75,6 +86,7 @@ const Page = () => {
       setUsername("");
       setContent("");
       setMediaUrl("");
+      setMedia(null);
     }
 
   } catch (error) {
@@ -95,6 +107,15 @@ const Page = () => {
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    if (!isPhotoFile(file)) {
+      toast({
+        title: "Error",
+        description: "Only photos can be uploaded",
+        variant: "destructive",
+      });
+      e.target.value = "";
+      return;
+    }
     console.log("Selected file:", file);
     setMedia(file);
   };

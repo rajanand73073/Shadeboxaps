@@ -33,6 +33,16 @@ export async function POST(request: Request) {
     }
 
     if(MediaUrl){
+      if (!MediaUrl.includes("/image/upload/")) {
+        return Response.json(
+          {
+            success: false,
+            message: "Only photos can be attached to messages",
+          },
+          { status: 400 },
+        );
+      }
+
       const newmessage = {
         content,
         createdAt: new Date(),

@@ -53,7 +53,7 @@ const Page = () => {
         setusernamemessage("");
         try {
           const response = await axios.get(
-            `/api/check-uniqueusername?username=${username}`,
+            `/api/check-uniqueusername?username=${encodeURIComponent(username)}`,
           );
           setusernamemessage(response.data.message);
         } catch (error) {
@@ -81,7 +81,7 @@ const Page = () => {
         title: "Success",
         description: response.data.message,
       });
-      router.replace(`/verify/${username}`);
+      router.replace(`/verify/${encodeURIComponent(data.email)}`);
       setisSubmitting(false);
     } catch (error) {
       console.error("Error in signup of user", error);

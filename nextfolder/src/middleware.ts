@@ -1,10 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getToken } from "next-auth/jwt";
 
-export { default } from "next-auth/middleware";
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/sign-in", "/sign-up", "/", "/verify/:path*"],
+  matcher: [
+  "/",
+  "/dashboard/:path*",
+  "/chat/:path*",
+  "/sign-in",
+  "/sign-up",
+  "/verify/:path*",
+]
 };
 
 export async function middleware(request: NextRequest) {
@@ -22,9 +28,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Redirect unauthenticated users away from the dashboard
-  if (!token && url.pathname.startsWith("/dashboard")) {
-    console.log("token2", token);
-
+  if (!token && (url.pathname.startsWith("/dashboard") || url.pathname.startsWith("/chat/create-room"))) {
     return NextResponse.redirect(new URL("/sign-in", request.url));
   }
 

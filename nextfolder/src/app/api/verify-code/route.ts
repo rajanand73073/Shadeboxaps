@@ -11,9 +11,10 @@ export async function POST(request: Request) {
   await dbConnect();
 
   try {
-    const { username, code } = await request.json();
+    const { email, code } = await request.json();
+    const normalizedEmail = decodeURIComponent(email).toLowerCase().trim();
 
-    const user = await UserModel.findOne({ username });
+    const user = await UserModel.findOne({ email: normalizedEmail });
 
     if (!user) {
       return Response.json(
@@ -28,8 +29,6 @@ export async function POST(request: Request) {
     const isCodevalid = user.verifyCode === code;
 
     const isCodeNotExpired = new Date(user.verifyCodeExpiry) > new Date();
-    console.log("codeExpiry", isCodeNotExpired);
-
     if (isCodevalid && isCodeNotExpired) {
       user.isVerified = true;
       await user.save();
@@ -42,12 +41,14 @@ export async function POST(request: Request) {
         { status: 200 },
       );
     } else if (!isCodeNotExpired) {
+      await UserModel.deleteOne({ _id: user._id, isVerified: false });
+
       return Response.json(
         {
           success: false,
-          message: "Verification Code expired Please Signup again",
+          message: "Verification code expired. Please sign up again.",
         },
-        { status: 500 },
+        { status: 400 },
       );
     } else {
       return Response.json(
@@ -59,11 +60,11 @@ export async function POST(request: Request) {
       );
     }
   } catch (error) {
-    console.error("Error verifying username", error);
+    console.error("Error verifying email", error);
     return Response.json(
       {
         success: false,
-        message: "Eroor verifying username",
+        message: "Error verifying email",
       },
       { status: 500 },
     );

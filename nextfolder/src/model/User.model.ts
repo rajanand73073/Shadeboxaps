@@ -96,6 +96,17 @@ const UserSchema: Schema<User> = new Schema({
   },
 });
 
+UserSchema.index(
+  { verifyCodeExpiry: 1 },
+  {
+    expireAfterSeconds: 0,
+    partialFilterExpression: {
+      isVerified: false,
+      provider: "credentials",
+    },
+  },
+);
+
 const UserModel =
   (mongoose.models.User as mongoose.Model<User>) ||
   mongoose.model<User>("User", UserSchema);

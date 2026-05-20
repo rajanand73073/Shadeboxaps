@@ -27,6 +27,13 @@ import { anonymousId } from "../../../../../lib/socket";
 import { randomSeed } from "../../../../../helpers/randomSeed";
 import Avatar from "../../../../../components/avatar";
 import ShareRoomCard from "../../../../../components/ShareRoomCard";
+import {
+  cleanupExpiredPrivateRoomKeys,
+  clearActivePrivateRoom,
+  savePrivateRoom,
+  savePrivateRoomTtl,
+  PRIVATE_ROOM_DURATION_MS,
+} from "../../../../../lib/privateRoom";
 
 interface MessageItem {
   message: string;
@@ -51,11 +58,15 @@ export default function ChatRoomPage() {
   const [seed, setseed] = useState<string>("");
 
   useEffect(() => {
+    cleanupExpiredPrivateRoomKeys();
+
     const isCreator = localStorage.getItem(`creator:${roomId}`) === "true";
     if (isCreator) {
       localStorage.setItem(`creator:${roomId}`, "false");
       setShowShare(isCreator);
     }
+
+    savePrivateRoom(roomId, Date.now() + PRIVATE_ROOM_DURATION_MS);
   }, []);
 
   useEffect(() => {
@@ -102,17 +113,21 @@ export default function ChatRoomPage() {
     // Receive TTL and schedule cleanup
     socket.on("room-ttl", (ttlSeconds) => {
       if (ttlSeconds <= 0) return;
+      const expiresAt = Date.now() + ttlSeconds * 1000;
+      savePrivateRoomTtl(roomId, ttlSeconds);
 
       // ✅ FIX: merge with stored identity instead of overwriting
       const stored = JSON.parse(localStorage.getItem(key) || "{}");
       const updatedIdentity = {
         ...stored,
         createdAt: Date.now(),
+        expiresAt,
       };
       localStorage.setItem(key, JSON.stringify(updatedIdentity));
 
       setTimeout(() => {
-        localStorage.removeItem(key);
+        clearActivePrivateRoom(roomId);
+        cleanupExpiredPrivateRoomKeys();
         localStorage.removeItem(`${myAnonyId}`);
         alert("Room expired. Starting fresh chat.");
         window.location.href = "/";
@@ -129,19 +144,7 @@ export default function ChatRoomPage() {
   }, []);
 
   useEffect(() => {
-    const key = `anon:${roomId}`;
-    const stored = localStorage.getItem(key);
-    let parsed = null;
-
-    if (stored !== null) {
-      parsed = JSON.parse(stored);
-      if (parsed.createdAt) {
-        if (!(Date.now() - parsed.createdAt < 5 * 60 * 1000)) {
-          console.log("Removing Key...");
-          localStorage.removeItem(key);
-        }
-      }
-    }
+    cleanupExpiredPrivateRoomKeys();
   }, []);
 
   useEffect(() => {

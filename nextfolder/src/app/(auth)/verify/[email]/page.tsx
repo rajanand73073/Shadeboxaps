@@ -23,7 +23,8 @@ import * as Z from "zod";
 import { signIn } from "next-auth/react";
 
 const Verifyaccount = () => {
-  const params = useParams<{ username: string }>();
+  const params = useParams<{ email: string }>();
+  const email = decodeURIComponent(params.email);
   const router = useRouter();
   const { toast } = useToast();
   const [isSubmitting, setisSubmitting] = useState(false);
@@ -40,7 +41,7 @@ const Verifyaccount = () => {
     setisSubmitting(true);
     try {
       const response = await axios.post<ApiResponse>(`/api/verify-code`, {
-        username: params.username,
+        email,
         code: data.code,
       });
       console.log("response", response.data);
@@ -52,7 +53,7 @@ const Verifyaccount = () => {
 
       const loginRes = await signIn("credentials", {
         redirect: false,
-        identifier: params.username,
+        identifier: email,
         verifyCode: data.code,
       });
 

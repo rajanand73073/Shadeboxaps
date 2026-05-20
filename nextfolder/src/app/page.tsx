@@ -95,23 +95,7 @@ export default function Page() {
           </Button>
         </Link>
 
-        <Link href="/chat/create-room">
-          <Button
-            onSubmit={handleLoading}
-            className="group relative px-8 py-8 rounded-xl text-lg font-medium overflow-hidden cursor-pointer bg-gradient-to-r from-blue-400/70 to-blue-200/70 backdrop-blur-sm border border-white/10 hover:border-indigo-500/30 hover:bg-gradient-to-r hover:from-gray-400/50 hover:to-gray-700/50 hover:bg-white/10 transition-all duration-300 dark:border-gray-500/30 dark:hover:border-indigo-500/50 dark:hover:bg-gradient-to-r dark:hover:from-gray-400/50 dark:hover:to-gray-700/50"
-          >
-            {Loading ? (
-              <>
-                <Loader className="mr-2 h-4 w-4 animate-spin" />
-                Please Wait
-              </>
-            ) : (
-              <>
-                <ArrowRight /> Send Message Publicly
-              </>
-            )}
-          </Button>
-        </Link>
+        
       </div>
     </>
   );

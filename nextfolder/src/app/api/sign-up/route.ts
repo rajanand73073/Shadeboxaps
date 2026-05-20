@@ -10,11 +10,18 @@ export async function POST(request: Request) {
 
   try {
     const { username, email, password } = await request.json();
-    const verifiedExistingUsername = await UserModel.findOne({
-      username,
-      isVerified: true,
+    const normalizedEmail = email.toLowerCase().trim();
+
+    await UserModel.deleteMany({
+      isVerified: false,
+      verifyCodeExpiry: { $lt: new Date() },
     });
-    if (verifiedExistingUsername) {
+
+    const existingUserByUsername = await UserModel.findOne({ username });
+    if (
+      existingUserByUsername &&
+      existingUserByUsername.email !== normalizedEmail
+    ) {
       return Response.json(
         {
           success: false,
@@ -24,7 +31,9 @@ export async function POST(request: Request) {
       );
     }
 
-    const existingUserByEmail = await UserModel.findOne({ email });
+    const existingUserByEmail = await UserModel.findOne({
+      email: normalizedEmail,
+    });
     const verifyCode = Math.floor(100000 + Math.random() * 900000).toString();
     if (existingUserByEmail) {
       if (existingUserByEmail.isVerified) {
@@ -37,6 +46,7 @@ export async function POST(request: Request) {
         );
       } else {
         const hashedPassword = await bcrypt.hash(password, 10);
+        existingUserByEmail.username = username;
         existingUserByEmail.password = hashedPassword;
         existingUserByEmail.verifyCode = verifyCode;
         existingUserByEmail.verifyCodeExpiry = new Date(Date.now() + 3600000);
@@ -50,7 +60,7 @@ export async function POST(request: Request) {
       expiryDate.setHours(expiryDate.getHours() + 1);
       const newUser = new UserModel({
         username,
-        email,
+        email: normalizedEmail,
         password: hasedPassword,
         verifyCode,
         verifyCodeExpiry: expiryDate,
@@ -64,14 +74,14 @@ export async function POST(request: Request) {
 
     //send verificationemail
     const emailResponse = await sendVerificationEmail(
-      email,
+      normalizedEmail,
       username,
       verifyCode,
     );
 
     console.log(
       "sendVerificationEmail function called with:",
-      email,
+      normalizedEmail,
       username,
       verifyCode,
     );

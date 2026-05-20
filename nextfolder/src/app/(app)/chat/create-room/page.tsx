@@ -4,21 +4,33 @@ import { Button } from "../../../../components/ui/button";
 
 import { useToast } from "../../../../hooks/use-toast";
 import { Loader2 } from "lucide-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { nanoid } from "nanoid";
+import {
+  cleanupExpiredPrivateRoomKeys,
+  createPrivateRoom,
+  getActivePrivateRoomId,
+} from "../../../../lib/privateRoom";
 
 export default function CreateRoom() {
   const router = useRouter();
   const { toast } = useToast();
   const [isSubmitting, setisSubmitting] = useState(false);
 
+  useEffect(() => {
+    cleanupExpiredPrivateRoomKeys();
+    const activeRoomId = getActivePrivateRoomId();
+    if (activeRoomId) {
+      router.replace(`/chat/chat-room/${activeRoomId}`);
+    }
+  }, [router]);
+
   const onSubmit = async () => {
     setisSubmitting(true);
     try {
-      const roomId = nanoid(12);
-      localStorage.setItem(`creator:${roomId}`, "true");
-      router.push(`/room/${roomId}`);
+      cleanupExpiredPrivateRoomKeys();
+      const activeRoomId = getActivePrivateRoomId();
+      const roomId = activeRoomId ?? createPrivateRoom();
       router.push(`/chat/chat-room/${roomId}`);
     } catch (error) {
       console.error("Error in creating Room", error);
