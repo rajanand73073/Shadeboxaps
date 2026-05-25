@@ -9,6 +9,8 @@ import axios, { AxiosError } from "axios";
 import { Switch } from "../../../components/ui/switch";
 import { useSession } from "next-auth/react";
 import { Button } from "../../../components/ui/button";
+import Link from "next/link";
+
 import {
   Loader2,
   RefreshCcw,
@@ -307,6 +309,13 @@ function DashboardClientInner() {
               </>
             )}
           </Button>
+          <Link
+            href="/chat/public-room"  
+         
+            className="ml-4 px-8 py-8 rounded-xl text-lg font-medium overflow-hidden group-hover:bg-gradient-to-r group-hover:from-gray-400/50 group-hover:to-gray-700/50 group-hover:bg-white/10 transition-all duration-300"
+          >
+            <ArrowRight /> Explore Public Rooms
+          </Link>
         </div>
       </div>
     </>

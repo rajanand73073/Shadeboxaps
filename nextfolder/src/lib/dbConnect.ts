@@ -1,15 +1,27 @@
 import mongoose from "mongoose";
+import LocationModel from "@/model/Location.model";
 
 type ConnectionObject = {
   isConnected?: number;
+  indexesCreated?: boolean;
 };
 
 const connection: ConnectionObject = {};
+
+async function createIndexes(): Promise<void> {
+  if (connection.indexesCreated) {
+    return;
+  }
+
+  await LocationModel.createIndexes();
+  connection.indexesCreated = true;
+}
 
 //here void means it doesn't care what type of data are coming
 async function dbConnect(): Promise<void> {
   if (connection.isConnected) {
     console.log("Already Connected to database");
+    await createIndexes();
     return;
   }
 
@@ -24,6 +36,7 @@ async function dbConnect(): Promise<void> {
     console.log("DB", db);
 
     connection.isConnected = db.connection.readyState;
+    await createIndexes();
 
     console.log("dbconnection", db.connection);
     console.log("connection", connection.isConnected);

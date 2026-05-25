@@ -81,7 +81,11 @@ anonymous_message/
   - radius-based room creation/join rules
   - room auto-cleanup
   - 2dsphere-based geospatial lookup
-
+  
+A lot of beginners:
+unnecessarily persist everything
+overload databases
+never use TTL
 ## Prerequisites
 
 - Node.js 18+ (Node.js 20 recommended)

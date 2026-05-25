@@ -19,12 +19,12 @@
       }
     ],
     "paths": {
-      "@/*": ["./nextfolder/src/*"]
+      "@/*": ["./src/*"]
     },
     "resolveJsonModule": true
   },
   "include": [
-    "nextfolder/next-env.d.ts",
+    "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
