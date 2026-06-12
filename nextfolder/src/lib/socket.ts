@@ -22,6 +22,7 @@ export const getSocket = (roomId: string) => {
   }
 
   if (!socket) {
+        console.log("NEXT_PUBLIC_SOCKET_URL", process.env.NEXT_PUBLIC_SOCKET_URL);
     const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL;
 
     if (!socketUrl) {
