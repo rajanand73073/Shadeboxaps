@@ -3,7 +3,8 @@ import { ServerToClientEvents, ClientToServerEvents } from "../types/socket";
 import { v4 as uuidv4 } from "uuid";
 import { PRIVATE_ROOM_DURATION_MS } from "./privateRoom";
 
-let socket: Socket<ServerToClientEvents, ClientToServerEvents>;
+let socket: Socket<ServerToClientEvents, ClientToServerEvents> | null = null;
+let connectedRoomId: string | null = null;
 
 export interface identityKey {
   anonyId?: string;
@@ -15,6 +16,11 @@ export interface identityKey {
 export const identity: identityKey = {};
 
 export const getSocket = (roomId: string) => {
+  if (socket && connectedRoomId !== roomId) {
+    socket.disconnect();
+    socket = null;
+  }
+
   if (!socket) {
     const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL;
 
@@ -27,6 +33,7 @@ export const getSocket = (roomId: string) => {
         anonyId: anonymousId(roomId),
       },
     });
+    connectedRoomId = roomId;
   }
   return socket;
 };

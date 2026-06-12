@@ -22,7 +22,7 @@ import {
   DropdownMenuTrigger,
 } from "../../../../../components/ui/dropdown-menu";
 import { getSocket } from "../../../../../lib/socket";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { anonymousId } from "../../../../../lib/socket";
 import { randomSeed } from "../../../../../helpers/randomSeed";
 import Avatar from "../../../../../components/avatar";
@@ -46,7 +46,9 @@ export default function ChatRoomPage() {
   const [messages, setmessages] = useState<MessageItem[]>([]);
 
   const params = useParams<{ roomId: string }>();
+  const searchParams = useSearchParams();
   const roomId = params.roomId;
+  const isPublicRoom = searchParams.get("type") === "public";
   const [showShare, setShowShare] = useState(false);
   const [input, setinput] = useState<string>("");
   const { toast } = useToast();
@@ -60,14 +62,17 @@ export default function ChatRoomPage() {
   useEffect(() => {
     cleanupExpiredPrivateRoomKeys();
 
-    const isCreator = localStorage.getItem(`creator:${roomId}`) === "true";
+    const isCreator =
+      !isPublicRoom && localStorage.getItem(`creator:${roomId}`) === "true";
     if (isCreator) {
       localStorage.setItem(`creator:${roomId}`, "false");
       setShowShare(isCreator);
     }
 
-    savePrivateRoom(roomId, Date.now() + PRIVATE_ROOM_DURATION_MS);
-  }, []);
+    if (!isPublicRoom) {
+      savePrivateRoom(roomId, Date.now() + PRIVATE_ROOM_DURATION_MS);
+    }
+  }, [isPublicRoom, roomId]);
 
   useEffect(() => {
     if (!roomId) {
@@ -78,10 +83,14 @@ export default function ChatRoomPage() {
       });
       return;
     }
-    socket.emit("join-room", roomId);
+    if (isPublicRoom) {
+      socket.emit("join-public-room", roomId);
+    } else {
+      socket.emit("join-room", roomId);
+    }
     // The listener is registered once when the component mounts
 
-    socket.on("receive-message", (message) => {
+    const handleReceiveMessage = (message: MessageItem) => {
       console.log("mesage", message);
 
       setmessages((prev) => [
@@ -93,30 +102,32 @@ export default function ChatRoomPage() {
           seed: message.seed,
         },
       ]);
-    });
+    };
 
-    socket.on("chat-history", (chatHistory) => {
+    const handleChatHistory = (chatHistory: string[]) => {
       console.log("chathistory", chatHistory);
 
       const updated = chatHistory.map((msg: string) => JSON.parse(msg));
       console.log("updated", updated);
 
       setmessages(updated);
-    });
+    };
 
     // Listener is ready before any delete events
-    socket.on("message-deleted", (msgId) => {
+    const handleMessageDeleted = (msgId: string) => {
       console.log("CLIENT: received message-deleted", msgId);
       setmessages((prev) => prev.filter((msg) => msg.msgId !== msgId));
-    });
+    };
 
     // Receive TTL and schedule cleanup
-    socket.on("room-ttl", (ttlSeconds) => {
+    const handleRoomTtl = (ttlSeconds: number) => {
       if (ttlSeconds <= 0) return;
       const expiresAt = Date.now() + ttlSeconds * 1000;
-      savePrivateRoomTtl(roomId, ttlSeconds);
 
-      // ✅ FIX: merge with stored identity instead of overwriting
+      if (!isPublicRoom) {
+        savePrivateRoomTtl(roomId, ttlSeconds);
+      }
+
       const stored = JSON.parse(localStorage.getItem(key) || "{}");
       const updatedIdentity = {
         ...stored,
@@ -126,22 +137,40 @@ export default function ChatRoomPage() {
       localStorage.setItem(key, JSON.stringify(updatedIdentity));
 
       setTimeout(() => {
-        clearActivePrivateRoom(roomId);
-        cleanupExpiredPrivateRoomKeys();
+        if (!isPublicRoom) {
+          clearActivePrivateRoom(roomId);
+          cleanupExpiredPrivateRoomKeys();
+        }
         localStorage.removeItem(`${myAnonyId}`);
-        alert("Room expired. Starting fresh chat.");
-        window.location.href = "/";
+        alert("Room expired.");
+        window.location.href = isPublicRoom ? "/chat/public-room" : "/";
       }, ttlSeconds * 1000);
-    });
+    };
+
+    if (isPublicRoom) {
+      socket.on("receive-public-message", handleReceiveMessage);
+      socket.on("public-chat-history", handleChatHistory);
+      socket.on("public-message-deleted", handleMessageDeleted);
+      socket.on("public-room-ttl", handleRoomTtl);
+    } else {
+      socket.on("receive-message", handleReceiveMessage);
+      socket.on("chat-history", handleChatHistory);
+      socket.on("message-deleted", handleMessageDeleted);
+      socket.on("room-ttl", handleRoomTtl);
+    }
 
     // Cleanup function to remove the listener when the component unmounts
     return () => {
-      socket.off("receive-message");
-      socket.off("chat-history");
-      socket.off("message-deleted");
-      socket.off("room-ttl");
+      socket.off("receive-message", handleReceiveMessage);
+      socket.off("chat-history", handleChatHistory);
+      socket.off("message-deleted", handleMessageDeleted);
+      socket.off("room-ttl", handleRoomTtl);
+      socket.off("receive-public-message", handleReceiveMessage);
+      socket.off("public-chat-history", handleChatHistory);
+      socket.off("public-message-deleted", handleMessageDeleted);
+      socket.off("public-room-ttl", handleRoomTtl);
     };
-  }, []);
+  }, [isPublicRoom, key, myAnonyId, roomId, socket, toast]);
 
   useEffect(() => {
     cleanupExpiredPrivateRoomKeys();
@@ -182,12 +211,21 @@ export default function ChatRoomPage() {
     const msgId = uuidv4();
     console.log("Sending seed", seed);
 
-    socket.emit("send-message", {
-      roomId: roomId,
-      message: input,
-      msgId: msgId,
-      seed: seed,
-    });
+    if (isPublicRoom) {
+      socket.emit("send-public-message", {
+        roomId: roomId,
+        message: input,
+        msgId: msgId,
+        seed: seed,
+      });
+    } else {
+      socket.emit("send-message", {
+        roomId: roomId,
+        message: input,
+        msgId: msgId,
+        seed: seed,
+      });
+    }
 
     setmessages((prev) => [
       ...prev,
@@ -205,10 +243,17 @@ export default function ChatRoomPage() {
     });
     //updating locally for instant UI response
 
-    socket.emit("delete-message", {
-      roomId,
-      msgId,
-    });
+    if (isPublicRoom) {
+      socket.emit("delete-public-message", {
+        roomId,
+        msgId,
+      });
+    } else {
+      socket.emit("delete-message", {
+        roomId,
+        msgId,
+      });
+    }
   };
 
   const refreshAvatar = () => {
@@ -246,7 +291,9 @@ export default function ChatRoomPage() {
       {/* Chat messages display area */}
       <div className="pb-24 px-4 overflow-y-auto">
         <div className="max-w-6xl mx-auto pt-8 h-full">
-          <h1 className="text-4xl font-bold mb-4">Chat Room</h1>
+          <h1 className="text-4xl font-bold mb-4">
+            {isPublicRoom ? "Public Chat Room" : "Chat Room"}
+          </h1>
           {messages.map((msg) => (
             <div
               key={msg.msgId}

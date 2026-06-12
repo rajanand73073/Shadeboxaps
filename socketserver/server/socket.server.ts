@@ -3,6 +3,9 @@ import { Server as HttpServer } from "http";
 import client from "./lib/redisClient.js";
 let io: SocketIo; // Declare io variable globally bcoz const require value immediately
 
+const PRIVATE_ROOM_TTL_SECONDS = 5 * 60;
+const PUBLIC_ROOM_TTL_SECONDS = 5* 60;
+
 export function getIo(): SocketIo {
   if (!io) {
     throw new Error("Socket.io not initialized");
@@ -11,11 +14,9 @@ export function getIo(): SocketIo {
 }
 
 const initializeSocket = (server: HttpServer): void => {
-  let Msgobject = {};
-
   io = new SocketIo(server, {
     cors: {
-      origin: "*",
+      origin: process.env.CORS_ORIGIN,
       methods: ["GET", "POST"],
     },
   });
@@ -34,7 +35,7 @@ const initializeSocket = (server: HttpServer): void => {
         socket.emit("chat-history", chatHistory);
       }
       console.log(`Socket ${socket.id} joined room ${roomId}`);
-      const ttl:number = await client.ttl(key) as number;
+      const ttl = (await client.ttl(key)) as number;
 
       if (ttl > 0) {
         socket.emit("room-ttl", ttl);
@@ -46,7 +47,7 @@ const initializeSocket = (server: HttpServer): void => {
     // ✅ Listen on the same socket
     socket.on("send-message", async ({ roomId, message, msgId, seed }) => {
       const key = `room:${roomId}`;
-      Msgobject = {
+      const msgObject = {
         message: message,
         id: socket.data.anonyId,
         msgId: msgId,
@@ -54,11 +55,11 @@ const initializeSocket = (server: HttpServer): void => {
       };
       // Check if room exists
       const exists = await client.exists(key);
-      await client.rPush(`room:${roomId}`, JSON.stringify(Msgobject));
+      await client.rPush(key, JSON.stringify(msgObject));
 
       // Only set expiry if room was just created
       if (!exists) {
-        await client.expire(key, 5*60);
+        await client.expire(key, PRIVATE_ROOM_TTL_SECONDS);
 
         // Get TTL and broadcast to all users in room
         const ttl = await client.ttl(key);
@@ -66,7 +67,7 @@ const initializeSocket = (server: HttpServer): void => {
       }
 
       // forward to room
-      socket.to(roomId).emit("receive-message", Msgobject);
+      socket.to(roomId).emit("receive-message", msgObject);
     });
 
     socket.on("delete-message", async ({ roomId, msgId }) => {
@@ -93,6 +94,65 @@ const initializeSocket = (server: HttpServer): void => {
           console.log("SERVER: emitting message-deleted", msgId);
           socket.to(roomId).emit("message-deleted", msgId);
 
+          break;
+        }
+      }
+    });
+
+    socket.on("join-public-room", async (roomId) => {
+      const key = `public-room:${roomId}`;
+      const socketRoom = `public:${roomId}`;
+
+      socket.join(socketRoom);
+
+      const chatHistory = await client.lRange(key, 0, -1);
+      socket.emit("public-chat-history", chatHistory);
+
+      const ttl = (await client.ttl(key)) as number;
+      if (ttl > 0) {
+        socket.emit("public-room-ttl", ttl);
+      }
+
+      console.log(`Socket ${socket.id} joined public room ${roomId}`);
+    });
+
+    socket.on(
+      "send-public-message",
+      async ({ roomId, message, msgId, seed }) => {
+        const key = `public-room:${roomId}`;
+        const socketRoom = `public:${roomId}`;
+        const msgObject = {
+          message,
+          id: socket.data.anonyId,
+          msgId,
+          seed,
+        };
+
+        const exists = await client.exists(key);
+        await client.rPush(key, JSON.stringify(msgObject));
+
+        if (!exists) {
+          await client.expire(key, PUBLIC_ROOM_TTL_SECONDS);
+          const ttl = await client.ttl(key);
+          io.to(socketRoom).emit("public-room-ttl", ttl);
+        }
+
+        socket.to(socketRoom).emit("receive-public-message", msgObject);
+      },
+    );
+
+    socket.on("delete-public-message", async ({ roomId, msgId }) => {
+      const key = `public-room:${roomId}`;
+      const socketRoom = `public:${roomId}`;
+      const messages = await client.lRange(key, 0, -1);
+
+      for (let i = 0; i < messages.length; i++) {
+        const msg = JSON.parse(messages[i] as string);
+
+        if (msg.msgId === msgId) {
+          await client.lSet(key, i, "__deleted__");
+          await client.lRem(key, 1, "__deleted__");
+          socket.to(socketRoom).emit("public-message-deleted", msgId);
           break;
         }
       }

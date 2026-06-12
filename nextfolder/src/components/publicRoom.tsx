@@ -1,438 +1,276 @@
-"use client"
-
-import { useEffect, useState } from "react"
-import { motion } from "framer-motion"
-import axios from "axios"
-import {
-Users,
-MapPin,
-Plus,
-LoaderCircle
-} from "lucide-react"
-
-import { Room } from "@/types/room"
-
-export default function PublicRoom(){
-
-const [rooms,setRooms]=useState<Room[]>([])
-const [loading,setLoading]=useState(true)
-const [error,setError]=useState("")
-
-useEffect(()=>{
-
-async function getNearbyRooms(){
-
-try{
-
-if(!navigator.geolocation){
-
-setError("Geolocation not supported")
-setLoading(false)
-
-return
-}
-
-navigator.geolocation.getCurrentPosition(
-
-async(position)=>{
-
-try{
-
-const lat=position.coords.latitude
-const lng=position.coords.longitude
-const response=await axios.get(`/api/public-room/nearby-rooms?lat=${lat}&lng=${lng}`)   
-
-const data=await response.data 
-
-setRooms(data.rooms)
-
-}
-catch(error){
-
-console.log(error)
-
-setError(
-"Failed to fetch rooms"
-)
-
-}
-
-finally{
-
-setLoading(false)
-
-}
-
-},
-
-(error)=>{
-
-console.log(error)
-
-setError(
-"Location permission denied"
-)
-
-setLoading(false)
-
-}
-
-)
-
-}
-catch(error){
-
-console.log(error)
-
-setLoading(false)
-
-}
-
-}
-
-getNearbyRooms()
-
-},[])
-
-return(
-
-<div
-className="
-min-h-screen
-bg-[#07071A]
-text-white
-px-6
-py-10
-"
->
-
-<div className="max-w-5xl mx-auto">
-
-<h1
-className="
-text-center
-font-bold
-text-4xl
-mb-10
-bg-gradient-to-r
-from-purple-400
-to-pink-500
-bg-clip-text
-text-transparent
-"
->
-
-Join Public Room
-
-</h1>
-
-{
-loading ?
-
-<div
-className="
-flex
-flex-col
-items-center
-justify-center
-h-[70vh]
-"
->
-
-<div className="relative">
-
-<motion.div
-
-animate={{
-rotate:360
-}}
-
-transition={{
-duration:4,
-repeat:Infinity,
-ease:"linear"
-}}
-
-className="
-w-[260px]
-h-[260px]
-rounded-full
-border
-border-purple-500
-"
-/>
-
-<motion.div
-
-animate={{
-scale:[1,1.2,1]
-}}
-
-transition={{
-duration:2,
-repeat:Infinity
-}}
-
-className="
-absolute
-top-1/2
-left-1/2
-w-[80px]
-h-[80px]
-rounded-full
-bg-purple-600
-blur-3xl
--translate-x-1/2
--translate-y-1/2
-"
-/>
-
-<MapPin
-size={30}
-className="
-absolute
-top-1/2
-left-1/2
--translate-x-1/2
--translate-y-1/2
-"
-/>
-
-</div>
-
-<p
-className="
-mt-8
-text-xl
-"
->
-
-Scanning within
-
-<span className="text-purple-400">
-{" "}5km{" "}
-</span>
-
-radius...
-
-</p>
-
-<LoaderCircle
-className="
-animate-spin
-mt-5
-text-purple-400
-"
-/>
-
-</div>
-
-:
-
-error ?
-
-<div
-className="
-text-center
-text-red-400
-"
->
-
-{error}
-
-</div>
-
-:
-
-<div>
-
-{
-rooms.length===0 ?
-
-<div
-className="
-text-center
-py-20
-"
->
-
-<h2
-className="
-text-2xl
-font-semibold
-"
->
-
-No nearby rooms found
-
-</h2>
-
-<p
-className="
-text-gray-400
-mt-2
-"
->
-
-Create your own room
-
-</p>
-
-</div>
-
-:
-
-<div
-className="
-space-y-5
-"
->
-
-{
-rooms.map((room)=>(
-
-<motion.div
-
-key={room._id}
-
-whileHover={{
-scale:1.02
-}}
-
-className="
-bg-white/5
-backdrop-blur-xl
-border
-border-purple-500/20
-rounded-3xl
-p-6
-flex
-justify-between
-items-center
-"
->
-
-<div>
-
-<h2
-className="
-font-semibold
-text-xl
-"
->
-
-{room.roomName}
-
-</h2>
-
-<div
-className="
-flex
-gap-4
-mt-3
-text-sm
-text-gray-400
-"
->
-
-<div
-className="
-flex
-items-center
-gap-1
-"
->
-
-<Users size={16}/>
-
-
-</div>
-
-<div
-className="
-flex
-items-center
-gap-1
-"
->
-
-<MapPin size={16}/>
-
-{room.radius.toFixed(1)}
-m
-
-</div>
-
-</div>
-
-</div>
-
-<button
-className="
-bg-gradient-to-r
-from-purple-600
-to-pink-500
-px-6
-py-2
-rounded-full
-hover:scale-105
-transition
-"
->
-
-Join
-
-</button>
-
-</motion.div>
-
-))
-}
-
-</div>
-
-}
-
-{
-rooms.length<10 && (
-
-<button
-
-className="
-w-full
-mt-8
-border-2
-border-dashed
-border-purple-500
-rounded-3xl
-p-5
-bg-purple-500/10
-flex
-items-center
-justify-center
-gap-3
-"
-
->
-
-<Plus/>
-
-Create New Room
-
-</button>
-
-)
-
-}
-
-</div>
-
-}
-
-</div>
-
-</div>
-
-)
-
+"use client";
+
+import { useEffect, useState } from "react";
+import type { FormEvent } from "react";
+import axios from "axios";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { LoaderCircle, MapPin, Plus, Users } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
+import { Room } from "@/types/room";
+
+type Coordinates = {
+  latitude: number;
+  longitude: number;
+};
+
+const DEFAULT_RADIUS = 5000;
+const MAX_PUBLIC_ROOMS_PER_RADIUS = 10;
+
+export default function PublicRoom() {
+  const router = useRouter();
+  const { status } = useSession();
+  const { toast } = useToast();
+  const [rooms, setRooms] = useState<Room[]>([]);
+  const [location, setLocation] = useState<Coordinates | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [creating, setCreating] = useState(false);
+  const [error, setError] = useState("");
+  const [roomName, setRoomName] = useState("");
+  const [radius, setRadius] = useState(DEFAULT_RADIUS);
+
+  const fetchNearbyRooms = async (coords: Coordinates, roomRadius = radius) => {
+    const response = await axios.get(
+      `/api/public-room/nearby-rooms?lat=${coords.latitude}&lng=${coords.longitude}&radius=${roomRadius}`,
+    );
+
+    setRooms(response.data.rooms || []);
+  };
+
+  useEffect(() => {
+    if (!navigator.geolocation) {
+      setError("Geolocation not supported");
+      setLoading(false);
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const coords = {
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+        };
+
+        setLocation(coords);
+
+        try {
+          await fetchNearbyRooms(coords, DEFAULT_RADIUS);
+        } catch (error) {
+          console.log(error);
+          setError("Failed to fetch rooms");
+        } finally {
+          setLoading(false);
+        }
+      },
+      (error) => {
+        console.log(error);
+        setError("Location permission denied");
+        setLoading(false);
+      },
+    );
+  }, []);
+
+  const handleCreateRoom = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (status !== "authenticated") {
+      toast({
+        title: "Login required",
+        description: "Please sign in before creating a public room.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!location) {
+      toast({
+        title: "Location missing",
+        description: "Allow location access to create a nearby public room.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (rooms.length >= MAX_PUBLIC_ROOMS_PER_RADIUS) {
+      toast({
+        title: "Room limit reached",
+        description: "This area already has 10 public rooms. Join one nearby.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setCreating(true);
+
+    try {
+      const response = await axios.post("/api/public-room/create-public-room", {
+        roomName,
+        radius,
+        location,
+      });
+
+      const createdRoom = response.data.data;
+      toast({
+        title: "Public room created",
+        description: "Joining your room now.",
+      });
+      router.push(`/chat/chat-room/${createdRoom._id}?type=public`);
+    } catch (error) {
+      console.log(error);
+      const message =
+        axios.isAxiosError(error) && error.response?.data?.message
+          ? error.response.data.message
+          : "Please try again later.";
+
+      toast({
+        title: "Could not create room",
+        description: message,
+        variant: "destructive",
+      });
+    } finally {
+      setCreating(false);
+    }
+  };
+
+  const joinRoom = (roomId: string) => {
+    router.push(`/chat/chat-room/${roomId}?type=public`);
+  };
+
+  return (
+    <div className="min-h-screen bg-[#080914] px-4 py-8 text-white sm:px-6">
+      <div className="mx-auto grid max-w-6xl gap-6 lg:grid-cols-[360px_1fr]">
+        <section className="rounded-lg border border-white/10 bg-white/[0.04] p-5">
+          <div className="mb-6 flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-md bg-emerald-500/15 text-emerald-300">
+              <MapPin size={20} />
+            </div>
+            <div>
+              <h1 className="text-2xl font-semibold">Public Rooms</h1>
+              <p className="text-sm text-gray-400">
+                Create or join nearby rooms.
+              </p>
+            </div>
+          </div>
+
+          <form className="space-y-5" onSubmit={handleCreateRoom}>
+            <div className="space-y-2">
+              <Label htmlFor="roomName">Room name</Label>
+              <Input
+                id="roomName"
+                minLength={1}
+                placeholder="Campus hangout"
+                required
+                value={roomName}
+                onChange={(event) => setRoomName(event.target.value)}
+                className="border-white/10 bg-black/20 text-white placeholder:text-gray-500"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="radius">Radius in meters</Label>
+              <Input
+                id="radius"
+                min={1}
+                type="number"
+                value={radius}
+                onChange={(event) => setRadius(Number(event.target.value))}
+                className="border-white/10 bg-black/20 text-white"
+              />
+            </div>
+
+            <Button
+              className="w-full gap-2"
+              disabled={
+                creating ||
+                loading ||
+                rooms.length >= MAX_PUBLIC_ROOMS_PER_RADIUS
+              }
+              type="submit"
+            >
+              {creating ? (
+                <LoaderCircle className="h-4 w-4 animate-spin" />
+              ) : (
+                <Plus size={16} />
+              )}
+              Create Public Room
+            </Button>
+
+            {rooms.length >= MAX_PUBLIC_ROOMS_PER_RADIUS && (
+              <p className="text-sm text-amber-300">
+                This radius already has 10 rooms. Join an existing room nearby.
+              </p>
+            )}
+          </form>
+        </section>
+
+        <section className="min-h-[520px] rounded-lg border border-white/10 bg-white/[0.03] p-5">
+          <div className="mb-6 flex items-center justify-between gap-4">
+            <div>
+              <h2 className="text-xl font-semibold">Nearby Rooms</h2>
+              <p className="text-sm text-gray-400">
+                {location
+                  ? `${rooms.length}/10 rooms found in this radius`
+                  : "Waiting for location"}
+              </p>
+            </div>
+            {loading && (
+              <LoaderCircle className="h-5 w-5 animate-spin text-emerald-300" />
+            )}
+          </div>
+
+          {loading ? (
+            <div className="flex h-[360px] flex-col items-center justify-center gap-4 text-gray-300">
+              <MapPin className="text-emerald-300" size={32} />
+              <p>Scanning nearby public rooms...</p>
+            </div>
+          ) : error ? (
+            <div className="flex h-[360px] items-center justify-center text-red-300">
+              {error}
+            </div>
+          ) : rooms.length === 0 ? (
+            <div className="flex h-[360px] flex-col items-center justify-center gap-2 text-center text-gray-300">
+              <Users size={32} />
+              <h3 className="text-lg font-medium text-white">
+                No nearby rooms found
+              </h3>
+              <p className="text-sm text-gray-400">
+                Create the first public room in this radius.
+              </p>
+            </div>
+          ) : (
+            <div className="grid gap-3">
+              {rooms.map((room) => (
+                <article
+                  className="flex flex-col gap-4 rounded-lg border border-white/10 bg-black/20 p-4 sm:flex-row sm:items-center sm:justify-between"
+                  key={room._id}
+                >
+                  <div>
+                    <h3 className="text-lg font-medium">{room.roomName}</h3>
+                    <div className="mt-2 flex flex-wrap gap-4 text-sm text-gray-400">
+                      <span className="inline-flex items-center gap-1">
+                        <MapPin size={15} />
+                        {room.radius.toFixed(0)}m
+                      </span>
+                      <span className="inline-flex items-center gap-1">
+                        <Users size={15} />
+                        Public chat
+                      </span>
+                    </div>
+                  </div>
+
+                  <Button onClick={() => joinRoom(room._id)} type="button">
+                    Join
+                  </Button>
+                </article>
+              ))}
+            </div>
+          )}
+        </section>
+      </div>
+    </div>
+  );
 }

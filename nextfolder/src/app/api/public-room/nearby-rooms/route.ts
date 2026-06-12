@@ -1,43 +1,39 @@
-import { NextRequest,NextResponse } from "next/server"
-import dbConnect from "../../../../lib/dbConnect"
-import LocationModel from "../../../../model/Location.model"    
+import { NextRequest, NextResponse } from "next/server";
+import dbConnect from "../../../../lib/dbConnect";
+import LocationModel from "../../../../model/Location.model";
 
-export async function GET(
-request:NextRequest
-){
+export async function GET(request: NextRequest) {
+  await dbConnect();
 
-await dbConnect()
-const searchParams=
-request.nextUrl.searchParams
+  const searchParams = request.nextUrl.searchParams;
+  const lat = Number(searchParams.get("lat"));
+  const lng = Number(searchParams.get("lng"));
+  const radius = Number(searchParams.get("radius") || 5000);
 
-const lat=
-Number(searchParams.get("lat"))
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+    return NextResponse.json(
+      {
+        success: false,
+        message: "Latitude and longitude are required",
+      },
+      { status: 400 },
+    );
+  }
 
-const lng=
-Number(searchParams.get("lng"))
+  const rooms = await LocationModel.find({
+    location: {
+      $near: {
+        $geometry: {
+          type: "Point",
+          coordinates: [lng, lat],
+        },
+        $maxDistance: Number.isFinite(radius) && radius > 0 ? radius : 5000,
+      },
+    },
+  }).limit(10);
 
-const rooms=
-await LocationModel.find({
-
-location:{
-
-$near:{
-
-$geometry:{
-type:"Point",
-coordinates:[lng,lat]
-},
-
-$maxDistance:5000
-
-}
-
-}
-
-})
-
-return NextResponse.json({
-rooms
-})
-
+  return NextResponse.json({
+    success: true,
+    rooms,
+  });
 }
