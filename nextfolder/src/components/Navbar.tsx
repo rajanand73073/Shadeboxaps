@@ -7,7 +7,7 @@ import Link from "next/link";
 
 import { Button } from "./ui/button";
 
-import { Moon, Sun, User } from "lucide-react";
+import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import {
   DropdownMenu,
@@ -22,16 +22,16 @@ const Navbar = () => {
   // const user: User = Session?.user as User;
 
   return (
-    <nav className="p-4 md-6 shadow-md flex">
-      <div className="container mx-auto flex  md:flex-row justify-between items-center">
-        <Link href="/" className="text-xl font-bold mb-4 md:mb-0">
+    <nav className="shadow-md">
+      <div className="container mx-auto flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
+        <Link href="/" className="text-xl font-bold">
           ShadeBox
         </Link>
 
-        <div className="space-x-8 flex">
-          <div className="space-x-5 flex ">
+        <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto sm:justify-end">
+          <div className="flex">
             <Link href={"/SendMessage"}>
-              <Button variant="link">
+              <Button variant="link" className="px-0 sm:px-4">
                 <span className="font-bold">Send Messages</span>
               </Button>
             </Link>
@@ -39,39 +39,39 @@ const Navbar = () => {
 
           {Session ? (
             <>
-              <Button onClick={() => signOut()} className="w-full md:w-auto">
+              <Button onClick={() => signOut()} className="w-auto">
                 Logout
               </Button>
             </>
           ) : (
             <>
               <Link href="/sign-in">
-                <Button className="w-full md:w-auto ">Login</Button>
+                <Button className="w-auto">Login</Button>
               </Link>
             </>
           )}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="icon">
+                <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                <span className="sr-only">Toggle theme</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => setTheme("light")}>
+                Light
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme("dark")}>
+                Dark
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme("system")}>
+                System
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="icon">
-            <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-            <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-            <span className="sr-only">Toggle theme</span>
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem onClick={() => setTheme("light")}>
-            Light
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setTheme("dark")}>
-            Dark
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setTheme("system")}>
-            System
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
     </nav>
   );
 };

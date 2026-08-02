@@ -76,8 +76,8 @@ const username = param.username;
   };
 
   return (
-    <div className="container mx-auto my-8 p-6 bg-white rounded max-w-4xl dark:bg-gray-900">
-      <h1 className="text-4xl font-bold mb-6 text-center dark:text-white">
+    <div className="mx-auto my-6 w-[calc(100%-2rem)] max-w-4xl rounded bg-white p-4 dark:bg-gray-900 sm:my-8 sm:p-6">
+      <h1 className="mb-6 text-center text-3xl font-bold dark:text-white sm:text-4xl">
         Public Profile Link
       </h1>
       <Form {...form}>

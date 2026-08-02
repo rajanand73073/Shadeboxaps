@@ -186,14 +186,10 @@ export default function ChatRoomPage() {
     setseed(storedIdentity.seed ?? "");
     if (!storedIdentity.seed) {
       console.log("setting seed");
-      createSeed();
+      setseed(randomSeed());
       setshowAvatar(true);
     }
-  }, []);
-
-  const createSeed = () => {
-    setseed(randomSeed());
-  };
+  }, [key]);
 
   const saveAvatar = (svgCode: string) => {
     // ✅ FIX: merge instead of overwrite
@@ -264,26 +260,26 @@ export default function ChatRoomPage() {
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-[calc(100vh-5rem)]">
       {showShare && (
         <ShareRoomCard roomId={roomId} onClose={() => setShowShare(false)} />
       )}
 
       {showAvatar && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 ">
-          <div className="bg-gray-300 p-6 rounded-2xl shadow-lg max-w-md text-center dark:bg-gray-900">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 px-4 py-6">
+          <div className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-lg bg-gray-300 p-5 text-center shadow-lg dark:bg-gray-900 sm:p-6">
             <h2 className="text-xl font-bold mb-2">🎉 Your Avatar!</h2>
 
             <Avatar Seed={seed} />
 
-            <div className="flex justify-evenly ml-8 ">
+            <div className="flex flex-wrap items-center justify-center gap-4">
               <button
                 className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
                 onClick={() => saveAvatar(seed)}
               >
                 Got it!
               </button>
-              <button onClick={refreshAvatar} className="mx-10 py-2 mt-4 ">
+              <button onClick={refreshAvatar} className="py-2 mt-4">
                 <RefreshCw />
               </button>
             </div>
@@ -292,9 +288,9 @@ export default function ChatRoomPage() {
       )}
 
       {/* Chat messages display area */}
-      <div className="pb-24 px-4 overflow-y-auto">
-        <div className="max-w-6xl mx-auto pt-8 h-full">
-          <h1 className="text-4xl font-bold mb-4">
+      <div className="overflow-y-auto px-4 pb-44 sm:pb-32">
+        <div className="mx-auto h-full max-w-6xl pt-6 sm:pt-8">
+          <h1 className="mb-4 text-3xl font-bold sm:text-4xl">
             {isPublicRoom ? "Public Chat Room" : "Chat Room"}
           </h1>
           {messages.map((msg) => (
@@ -302,12 +298,12 @@ export default function ChatRoomPage() {
               key={msg.msgId}
               className={`flex ${msg.id === myAnonyId ? "justify-end" : "justify-start"} gap-x-2`}
             >
-              <div className="w-10 h-10 rounded-full">
+              <div className="h-10 w-10 shrink-0 rounded-full">
                 <Avatar Seed={msg.seed} isMessageComponent={true} />
               </div>
-              <div className="bg-gray-100 rounded-lg py-3 pl-3 max-w-[70%] text-blue-900 mt-10 cursor-pointer flex justify-between gap-4 hover:bg-gray-200">
-                {msg.message}
-                <div>
+              <div className="mt-10 flex max-w-[85%] cursor-pointer justify-between gap-3 rounded-lg bg-gray-100 px-3 py-3 text-blue-900 hover:bg-gray-200 sm:max-w-[70%]">
+                <p className="min-w-0 break-words">{msg.message}</p>
+                <div className="shrink-0">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <EllipsisVertical />
@@ -353,17 +349,17 @@ export default function ChatRoomPage() {
       </div>
 
       {/* chat input area */}
-      <div className="fixed bottom-0 left-0 w-full p-4">
+      <div className="fixed bottom-0 left-0 w-full border-t bg-background/95 p-4 backdrop-blur">
         <form action="" onSubmit={handlemessage}>
-          <div className="grid gap-8 max-w-6xl mx-auto pb-10">
+          <div className="mx-auto grid max-w-6xl gap-3 pb-2 sm:grid-cols-[1fr_auto] sm:items-center">
             <input
               type="text"
-              className="p-auto flex-1 resize-none border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="min-w-0 resize-none rounded-md border border-gray-300 px-3 py-2 focus:border-transparent focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Type your message here."
               value={input}
               onChange={(e) => setinput(e.target.value)}
             />
-            <Button type="submit">Send message</Button>
+            <Button type="submit" className="w-full sm:w-auto">Send message</Button>
           </div>
         </form>
       </div>

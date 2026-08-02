@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import type { UploadApiResponse } from "cloudinary";
 import cloudinary from "../../../lib/cloudinary"
 
 export async function POST(req: Request) {
@@ -34,7 +35,7 @@ export async function POST(req: Request) {
 
     // Upload to Cloudinary
     //We use new Promise() because upload_stream is callback-based, and we need to convert it into Promise-based so async await and try/catch can work properly.
-    const uploadResult = await new Promise<any>((resolve, reject) => {
+    const uploadResult = await new Promise<UploadApiResponse>((resolve, reject) => {
       const stream = cloudinary.uploader.upload_stream(
         {
           resource_type: "image",
@@ -42,7 +43,8 @@ export async function POST(req: Request) {
         },
         (error, result) => {
           if (error) reject(error);
-          else resolve(result);
+          else if (result) resolve(result);
+          else reject(new Error("Cloudinary upload did not return a result"));
         }
       );
 

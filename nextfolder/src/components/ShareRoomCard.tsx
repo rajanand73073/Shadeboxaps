@@ -31,14 +31,14 @@ export default function ShareRoomCard({ roomId, onClose }: Props) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4 py-6">
       {/* Animated Card */}
       <motion.div
         initial={{ scale: 0.7, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         exit={{ scale: 0.7, opacity: 0 }}
         transition={{ duration: 0.25 }}
-        className="bg-white dark:bg-zinc-900 rounded-2xl shadow-xl p-6 w-[90%] max-w-md text-center relative"
+        className="relative max-h-[90vh] w-full max-w-md overflow-y-auto rounded-lg bg-white p-5 text-center shadow-xl dark:bg-zinc-900 sm:p-6"
       >
         {/* Close Button */}
         <button
@@ -54,7 +54,7 @@ export default function ShareRoomCard({ roomId, onClose }: Props) {
         </p>
 
         {/* Link Box */}
-        <div className="flex items-center gap-2 bg-zinc-100 dark:bg-zinc-800 rounded-lg px-3 py-2 text-sm mb-4">
+        <div className="mb-4 flex items-center gap-2 rounded-lg bg-zinc-100 px-3 py-2 text-sm dark:bg-zinc-800">
           <LinkIcon size={16} />
           <span className="truncate">{roomLink}</span>
           <button

@@ -7,7 +7,7 @@ import { authOptions } from "../../auth/[...nextauth]/options";
 
 const EARTH_RADIUS_IN_METERS = 6378137;
 const PUBLIC_ROOM_RADIUS_METERS = 5000;
-const PUBLIC_ROOM_TTL_MS = 60 * 60 * 1000;
+const PUBLIC_ROOM_TTL_MS =30* 60 * 1000;
 
 export async function POST(request: Request) {
   await dbConnect();

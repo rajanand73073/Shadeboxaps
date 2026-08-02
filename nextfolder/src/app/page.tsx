@@ -18,9 +18,11 @@ import {
 } from "../components/ui/carousel";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 export default function Page() {
   const router = useRouter();
+  const { status } = useSession();
   const [Loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -36,12 +38,12 @@ export default function Page() {
   return (
     <>
       {/* Main content */}
-      <main className="flex-grow flex flex-col items-center justify-center px-4 md:px-24 py-12  text-white ">
-        <section className="text-center mb-8 md:mb-12">
-          <h1 className="text-3xl md:text-5xl font-bold">
+      <main className="flex min-h-[calc(100vh-12rem)] flex-col items-center justify-center px-4 py-10 text-white sm:px-6 md:px-12 lg:px-24">
+        <section className="mb-8 max-w-4xl text-center md:mb-12">
+          <h1 className="text-3xl font-bold leading-tight sm:text-4xl md:text-5xl">
             Dive into the World of Anonymous Feedback
           </h1>
-          <p className="mt-3 md:mt-4 text-base md:text-lg">
+          <p className="mt-3 text-base md:mt-4 md:text-lg">
             True Feedback - Where your identity remains a secret.
           </p>
         </section>
@@ -49,7 +51,7 @@ export default function Page() {
         {/* Carousel for Messages */}
         <Carousel
           plugins={[Autoplay({ delay: 2000 })]}
-          className="w-full max-w-lg md:max-w-xl"
+          className="w-full max-w-sm sm:max-w-lg md:max-w-xl"
         >
           <CarouselContent>
             {messages.map((message, index) => (
@@ -58,9 +60,9 @@ export default function Page() {
                   <CardHeader>
                     <CardTitle>{message.title}</CardTitle>
                   </CardHeader>
-                  <CardContent className="flex  md:flex-row items-start space-y-2 md:space-y-0 md:space-x-4">
+                  <CardContent className="flex flex-col items-start gap-3 sm:flex-row sm:gap-4">
                     <Mail className="flex-shrink-0" />
-                    <div>
+                    <div className="min-w-0">
                       <p>{message.content}</p>
                       <p className="text-xs text-muted-foreground">
                         {message.received}
@@ -74,11 +76,11 @@ export default function Page() {
         </Carousel>
       </main>
 
-      <div className="mx-auto flex items-center justify-center  space-x-8">
+      <div className="mx-auto flex w-full items-center justify-center px-4 pb-10">
         <Link href="/sign-up">
           <Button
             onSubmit={handleLoading}
-            className="group px-8 py-8 rounded-xl text-lg font-medium cursor-pointer shadow-[0_0_15px_rgba(99,102,241,0.15)] bg-gradient-to-r from-indigo-400 to-purple-400 opacity-90 border border-indigo-300/50 hover:opacity-100 hover:bg-gradient-to-r hover:from-indigo-500 hover:to-purple-500 hover:border-indigo-400/60 transition-all duration-300
+            className="group min-h-14 w-full max-w-xs rounded-xl px-6 py-4 text-base font-medium cursor-pointer shadow-[0_0_15px_rgba(99,102,241,0.15)] bg-gradient-to-r from-indigo-400 to-purple-400 opacity-90 border border-indigo-300/50 hover:opacity-100 hover:bg-gradient-to-r hover:from-indigo-500 hover:to-purple-500 hover:border-indigo-400/60 transition-all duration-300 sm:text-lg
 
 "
           >

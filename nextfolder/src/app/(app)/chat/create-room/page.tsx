@@ -45,14 +45,14 @@ export default function CreateRoom() {
   };
 
   return (
-    <div className="flex justify-center items-center  min-h-screen bg-gray-300 dark:bg-black">
-      <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md dark:bg-gray-900">
+    <div className="flex min-h-[calc(100vh-5rem)] items-center justify-center bg-gray-300 px-4 py-8 dark:bg-black sm:px-6">
+      <div className="w-full max-w-md space-y-6 rounded-lg bg-white p-5 text-center shadow-md dark:bg-gray-900 sm:p-8 sm:space-y-8">
         <div className="text-center">
-          <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl mb-6">
+          <h1 className="mb-4 text-3xl font-extrabold tracking-tight sm:text-4xl lg:text-5xl">
             Create Chat Room
           </h1>
         </div>
-        <Button type="submit" disabled={isSubmitting} onClick={onSubmit}>
+        <Button type="submit" disabled={isSubmitting} onClick={onSubmit} className="w-full sm:w-auto">
           {isSubmitting ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />

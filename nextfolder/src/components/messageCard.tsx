@@ -127,9 +127,9 @@ const MessageCard = ({
     }
   };
   return (
-    <Card>
+    <Card className="min-w-0">
       <CardHeader>
-        <div className="flex justify-between items-center">
+        <div className="flex items-center justify-between gap-3">
           <CardTitle>Message</CardTitle>
           <CardDescription></CardDescription>
           <AlertDialog>
@@ -164,13 +164,13 @@ const MessageCard = ({
             height={300}
           />
         ) }
-   <p>{message.content}</p>
+        <p className="break-words">{message.content}</p>
       </CardContent>
       {/*here i forgot to add simple logic of unauthenticated by using simply conditional rendering.*/}
       {message.status !== "unauthenticated" && (
         <CardFooter>
-          <div className=" flex justify-between space-x-8 w-full ">
-             <label className="cursor-pointer flex items-center justify-center w-20 h-10 rounded-sm  hover:bg-gray-100 dark:hover:bg-gray-700">
+          <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center">
+             <label className="cursor-pointer flex h-10 w-full items-center justify-center rounded-sm hover:bg-gray-100 dark:hover:bg-gray-700 sm:w-14 sm:shrink-0">
               <Paperclip />
               <input
                 type="file"
@@ -180,12 +180,12 @@ const MessageCard = ({
               />
             </label>
             <input
-              className="w-full p-2 border-solid outline-blue-500 border border-gray-300 rounded-sm "
+              className="min-w-0 w-full rounded-sm border border-solid border-gray-300 p-2 outline-blue-500"
               placeholder="Type your message here."
               value={Content}
               onChange={(e) => setContent(e.target.value)}
             />
-            <Button onClick={handleSendMessage} variant={"ghost"} className="" >
+            <Button onClick={handleSendMessage} variant={"ghost"} className="w-full sm:w-auto sm:shrink-0" >
               <SendHorizontal className="-rotate-45 " />
             </Button>
           </div>

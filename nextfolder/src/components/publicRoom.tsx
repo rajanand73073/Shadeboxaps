@@ -141,7 +141,7 @@ export default function PublicRoom() {
   };
 
   return (
-    <div className="min-h-screen bg-[#080914] px-4 py-8 text-white sm:px-6">
+    <div className="min-h-[calc(100vh-5rem)] bg-[#080914] px-4 py-6 text-white sm:px-6 sm:py-8">
       <div className="mx-auto grid max-w-6xl gap-6 lg:grid-cols-[360px_1fr]">
         <section className="rounded-lg border border-white/10 bg-white/[0.04] p-5">
           <div className="mb-6 flex items-center gap-3">
@@ -200,8 +200,8 @@ export default function PublicRoom() {
           </form>
         </section>
 
-        <section className="min-h-[520px] rounded-lg border border-white/10 bg-white/[0.03] p-5">
-          <div className="mb-6 flex items-center justify-between gap-4">
+        <section className="min-h-[420px] rounded-lg border border-white/10 bg-white/[0.03] p-5 sm:min-h-[520px]">
+          <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
             <div>
               <h2 className="text-xl font-semibold">Nearby Rooms</h2>
               <p className="text-sm text-gray-400">
@@ -241,7 +241,7 @@ export default function PublicRoom() {
                   className="flex flex-col gap-4 rounded-lg border border-white/10 bg-black/20 p-4 sm:flex-row sm:items-center sm:justify-between"
                   key={room._id}
                 >
-                  <div>
+                  <div className="min-w-0">
                     <h3 className="text-lg font-medium">{room.roomName}</h3>
                     <div className="mt-2 flex flex-wrap gap-4 text-sm text-gray-400">
                       <span className="inline-flex items-center gap-1">
@@ -255,7 +255,7 @@ export default function PublicRoom() {
                     </div>
                   </div>
 
-                  <Button onClick={() => joinRoom(room._id)} type="button">
+                  <Button onClick={() => joinRoom(room._id)} type="button" className="w-full sm:w-auto">
                     Join
                   </Button>
                 </article>

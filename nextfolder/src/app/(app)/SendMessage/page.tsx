@@ -17,7 +17,7 @@ const Page = () => {
   const { toast } = useToast();
   const { data: session } = useSession();
   //renaming data to session for better readability
-  const [MediaUrl, setMediaUrl] = useState("");
+  const [, setMediaUrl] = useState("");
   const [Media,setMedia] = useState<File | null>(null);
 
   useEffect(() => {
@@ -122,8 +122,8 @@ const Page = () => {
 
   return (
     <>
-      <form onSubmit={handleSubmit}>
-        <div className="flex flex-col items-center justify-center mx-auto my-10 w-full max-w-md">
+      <form onSubmit={handleSubmit} className="px-4 py-8 sm:px-6">
+        <div className="mx-auto flex w-full max-w-2xl flex-col items-center justify-center">
           <input
             type="text"
             placeholder="username"
@@ -133,9 +133,9 @@ const Page = () => {
           />
 
           {/* Chat Input Section */}
-          <div className="flex items-center gap-2 w-full border rounded-xl p-2 shadow-sm">
+          <div className="flex w-full flex-col gap-2 rounded-xl border p-2 shadow-sm sm:flex-row sm:items-center">
             {/* Upload Button */}
-            <label className="cursor-pointer flex items-center justify-center w-20 h-10 rounded-sm  hover:bg-gray-100 dark:hover:bg-gray-700">
+            <label className="flex h-10 w-full cursor-pointer items-center justify-center rounded-sm hover:bg-gray-100 dark:hover:bg-gray-700 sm:w-14 sm:shrink-0">
               <Paperclip />
               <input
                 type="file"
@@ -150,13 +150,13 @@ const Page = () => {
               placeholder="Type your message here."
               value={Content}
               onChange={(e) => setContent(e.target.value)}
-              className="border-none"
+              className="min-h-24 min-w-0 border-none sm:min-h-10"
             />
 
             {/* Send Button */}
             <button
               type="submit"
-              className=" px-4 py-2 rounded-lg hover:bg-gray-700 bg-black transition dark:hover:bg-gray-700 dark:bg-blue-500 text-white font-semibold"
+              className="w-full rounded-lg bg-black px-4 py-2 font-semibold text-white transition hover:bg-gray-700 dark:bg-blue-500 dark:hover:bg-gray-700 sm:w-auto sm:shrink-0"
             >
               Send
             </button>

@@ -104,10 +104,10 @@ const Page = () => {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-300 dark:bg-black overflow-hidden">
-      <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-md dark:bg-gray-900 relative bottom-10">
+    <div className="flex min-h-[calc(100vh-5rem)] items-center justify-center bg-gray-300 px-4 py-8 dark:bg-black sm:px-6">
+      <div className="w-full max-w-md space-y-6 rounded-lg bg-white p-5 shadow-md dark:bg-gray-900 sm:p-8 sm:space-y-8">
         <div className="text-center dark:text-white">
-          <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl mb-6 dark:text-white">
+          <h1 className="mb-4 text-3xl font-extrabold tracking-tight dark:text-white sm:text-4xl lg:text-5xl">
             Share Your Message as Mystery
           </h1>
           <p className="mb-4 dark:text-white">
@@ -116,7 +116,7 @@ const Page = () => {
         </div>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 sm:space-y-8">
             <FormField
               control={form.control}
               name="username"

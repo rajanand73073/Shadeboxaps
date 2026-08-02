@@ -29,9 +29,9 @@ export default async function AuthErrorPage({
   }
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen">
-      <h1 className="text-2xl font-bold mb-4">Authentication Error</h1>
-      <p className="text-red-500 mb-6">{message}</p>
+    <div className="flex min-h-[calc(100vh-5rem)] flex-col items-center justify-center px-4 py-8 text-center">
+      <h1 className="mb-4 text-2xl font-bold">Authentication Error</h1>
+      <p className="mb-6 max-w-md text-red-500">{message}</p>
       <Link href="/sign-in" className="underline">
         Back to Sign In
       </Link>

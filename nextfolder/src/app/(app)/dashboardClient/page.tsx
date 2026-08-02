@@ -184,8 +184,8 @@ function DashboardClientInner() {
     <>
       {/* 🎉 Welcome popup */}
       {showPopup && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 ">
-          <div className="bg-gray-300 p-6 rounded-2xl shadow-lg max-w-md text-center dark:bg-gray-900 space-y-6">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 px-4 py-6">
+          <div className="max-h-[90vh] w-full max-w-md space-y-6 overflow-y-auto rounded-lg bg-gray-300 p-5 text-center shadow-lg dark:bg-gray-900 sm:p-6">
             <h2 className="text-xl font-bold mb-2">🎉 Welcome to ShadeBox!</h2>
             <div className="flex items-center gap-2 p-2 border rounded-md ">
               <span className="truncate text-sm">
@@ -206,7 +206,7 @@ function DashboardClientInner() {
               <span className=" font-bold rounded p-1 my-2">
                 Share link To connect Socially but Anonymously!
               </span>
-              <div className="flex justify-center gap-6 mt-4">
+              <div className="mt-4 flex flex-wrap justify-center gap-4 sm:gap-6">
                 <button
                   onClick={shareWhatsapp}
                   className="p-3 rounded-full  text-white hover:scale-110 transition"
@@ -255,19 +255,19 @@ function DashboardClientInner() {
       )}
 
       {/* Dashboard content */}
-      <div className="my-8 mx-4 md:mx-8 lg:mx-auto p-6 bg-white rounded w-full max-w-6xl dark:bg-gray-900">
-        <h1 className="text-4xl font-bold mb-4 dark:text-white">
+      <div className="mx-auto my-6 w-[calc(100%-2rem)] max-w-6xl rounded bg-white p-4 dark:bg-gray-900 sm:my-8 sm:p-6">
+        <h1 className="mb-4 break-words text-3xl font-bold dark:text-white sm:text-4xl">
           {username} Dashboard
         </h1>
 
-        <div className="mb-4">
+        <div className="mb-4 flex flex-wrap items-center gap-2">
           <Switch
             {...register("acceptMessages")}
             checked={acceptMessages}
             onCheckedChange={handleToggleSwitch}
             disabled={isSwitchLoading}
           />
-          <span className="ml-2">
+          <span>
             Accept Messages: {acceptMessages ? "On" : "Off"}
           </span>
         </div>
@@ -282,7 +282,7 @@ function DashboardClientInner() {
           )}
         </Button>
 
-        <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6">
           {Messages.map((message) => (
             <MessageCard
               key={String(message?._id)}
@@ -292,11 +292,11 @@ function DashboardClientInner() {
             />
           ))}
         </div>
-        <div className="mt-5 flex ">
+        <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
           <Button
             onClick={handlePrivateRoomJoin}
             disabled={isJoiningPrivateRoom}
-            className="group relative px-8 py-8 rounded-xl text-lg font-medium overflow-hidden cursor-pointer bg-gradient-to-r from-blue-400/70 to-blue-200/70 backdrop-blur-sm border border-white/10 hover:border-indigo-500/30 hover:bg-gradient-to-r hover:from-gray-400/50 hover:to-gray-700/50 hover:bg-white/10 transition-all duration-300 dark:border-gray-500/30 dark:hover:border-indigo-500/50 dark:hover:bg-gradient-to-r dark:hover:from-gray-400/50 dark:hover:to-gray-700/50"
+            className="group relative min-h-14 w-full rounded-xl px-5 py-4 text-base font-medium overflow-hidden cursor-pointer bg-gradient-to-r from-blue-400/70 to-blue-200/70 backdrop-blur-sm border border-white/10 hover:border-indigo-500/30 hover:bg-gradient-to-r hover:from-gray-400/50 hover:to-gray-700/50 hover:bg-white/10 transition-all duration-300 dark:border-gray-500/30 dark:hover:border-indigo-500/50 dark:hover:bg-gradient-to-r dark:hover:from-gray-400/50 dark:hover:to-gray-700/50 sm:w-auto sm:px-8 sm:text-lg"
           >
             {isJoiningPrivateRoom ? (
               <>
@@ -312,7 +312,7 @@ function DashboardClientInner() {
           <Link
             href="/chat/public-room"  
          
-            className="ml-4 px-8 py-8 rounded-xl text-lg font-medium overflow-hidden group-hover:bg-gradient-to-r group-hover:from-gray-400/50 group-hover:to-gray-700/50 group-hover:bg-white/10 transition-all duration-300"
+            className="inline-flex min-h-14 w-full items-center justify-center gap-2 rounded-xl px-5 py-4 text-base font-medium overflow-hidden group-hover:bg-gradient-to-r group-hover:from-gray-400/50 group-hover:to-gray-700/50 group-hover:bg-white/10 transition-all duration-300 sm:w-auto sm:px-8 sm:text-lg"
           >
             <ArrowRight /> Explore Public Rooms
           </Link>
