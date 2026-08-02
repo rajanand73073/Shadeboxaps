@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
@@ -18,7 +18,6 @@ type Coordinates = {
   longitude: number;
 };
 
-const DEFAULT_RADIUS = 5000;
 const MAX_PUBLIC_ROOMS_PER_RADIUS = 10;
 
 export default function PublicRoom() {
@@ -31,15 +30,17 @@ export default function PublicRoom() {
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState("");
   const [roomName, setRoomName] = useState("");
-  const [radius, setRadius] = useState(DEFAULT_RADIUS);
 
-  const fetchNearbyRooms = async (coords: Coordinates, roomRadius = radius) => {
-    const response = await axios.get(
-      `/api/public-room/nearby-rooms?lat=${coords.latitude}&lng=${coords.longitude}&radius=${roomRadius}`,
-    );
+  const fetchNearbyRooms = useCallback(async (coords: Coordinates) => {
+    const response = await axios.get("/api/public-room/nearby-rooms", {
+      params: {
+        lat: coords.latitude,
+        lng: coords.longitude,
+      },
+    });
 
     setRooms(response.data.rooms || []);
-  };
+  }, []);
 
   useEffect(() => {
     if (!navigator.geolocation) {
@@ -58,7 +59,7 @@ export default function PublicRoom() {
         setLocation(coords);
 
         try {
-          await fetchNearbyRooms(coords, DEFAULT_RADIUS);
+          await fetchNearbyRooms(coords);
         } catch (error) {
           console.log(error);
           setError("Failed to fetch rooms");
@@ -72,7 +73,7 @@ export default function PublicRoom() {
         setLoading(false);
       },
     );
-  }, []);
+  }, [fetchNearbyRooms]);
 
   const handleCreateRoom = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -109,7 +110,6 @@ export default function PublicRoom() {
     try {
       const response = await axios.post("/api/public-room/create-public-room", {
         roomName,
-        radius,
         location,
       });
 
@@ -170,16 +170,8 @@ export default function PublicRoom() {
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="radius">Radius in meters</Label>
-              <Input
-                id="radius"
-                min={1}
-                type="number"
-                value={radius}
-                onChange={(event) => setRadius(Number(event.target.value))}
-                className="border-white/10 bg-black/20 text-white"
-              />
+            <div className="rounded-md border border-white/10 bg-black/20 px-3 py-2 text-sm text-gray-300">
+              Public rooms are fixed to a 5 km nearby area.
             </div>
 
             <Button
@@ -201,7 +193,8 @@ export default function PublicRoom() {
 
             {rooms.length >= MAX_PUBLIC_ROOMS_PER_RADIUS && (
               <p className="text-sm text-amber-300">
-                This radius already has 10 rooms. Join an existing room nearby.
+                This 5 km area already has 10 rooms. Join an existing room
+                nearby.
               </p>
             )}
           </form>
@@ -213,7 +206,7 @@ export default function PublicRoom() {
               <h2 className="text-xl font-semibold">Nearby Rooms</h2>
               <p className="text-sm text-gray-400">
                 {location
-                  ? `${rooms.length}/10 rooms found in this radius`
+                  ? `${rooms.length}/10 rooms found within 5 km`
                   : "Waiting for location"}
               </p>
             </div>
@@ -238,7 +231,7 @@ export default function PublicRoom() {
                 No nearby rooms found
               </h3>
               <p className="text-sm text-gray-400">
-                Create the first public room in this radius.
+                Create the first public room within 5 km.
               </p>
             </div>
           ) : (
@@ -253,7 +246,7 @@ export default function PublicRoom() {
                     <div className="mt-2 flex flex-wrap gap-4 text-sm text-gray-400">
                       <span className="inline-flex items-center gap-1">
                         <MapPin size={15} />
-                        {room.radius.toFixed(0)}m
+                        5 km
                       </span>
                       <span className="inline-flex items-center gap-1">
                         <Users size={15} />

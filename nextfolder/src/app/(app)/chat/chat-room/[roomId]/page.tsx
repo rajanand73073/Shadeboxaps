@@ -1,7 +1,7 @@
 "use client";
 import { v4 as uuidv4 } from "uuid";
 import { Button } from "../../../../../components/ui/button";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useToast } from "../../../../../hooks/use-toast";
 import {
   CopyIcon,
@@ -52,8 +52,11 @@ export default function ChatRoomPage() {
   const [showShare, setShowShare] = useState(false);
   const [input, setinput] = useState<string>("");
   const { toast } = useToast();
-  const socket = getSocket(roomId);
-  const myAnonyId = anonymousId(roomId) as string;
+  const myAnonyId = useMemo(() => anonymousId(roomId), [roomId]);
+  const socket = useMemo(
+    () => getSocket(roomId, myAnonyId),
+    [roomId, myAnonyId],
+  );
   console.log("myAnonId", myAnonyId);
   const key = `anon:${roomId}`;
   const [showAvatar, setshowAvatar] = useState(false);

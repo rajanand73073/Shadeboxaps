@@ -6,6 +6,8 @@ import { User } from "next-auth";
 import { authOptions } from "../../auth/[...nextauth]/options";
 
 const EARTH_RADIUS_IN_METERS = 6378137;
+const PUBLIC_ROOM_RADIUS_METERS = 5000;
+const PUBLIC_ROOM_TTL_MS = 60 * 60 * 1000;
 
 export async function POST(request: Request) {
   await dbConnect();
@@ -37,15 +39,19 @@ export async function POST(request: Request) {
       );
     }
 
-    const { roomName, radius = 5000, location } = parsedBody.data;
+    const { roomName, location } = parsedBody.data;
     const { latitude, longitude } = location;
+    const now = new Date();
+
+    await LocationModel.deleteMany({ expiresAt: { $lte: now } });
 
     const roomsInRadius = await LocationModel.countDocuments({
+      expiresAt: { $gt: now },
       location: {
         $geoWithin: {
           $centerSphere: [
             [longitude, latitude],
-            radius / EARTH_RADIUS_IN_METERS,
+            PUBLIC_ROOM_RADIUS_METERS / EARTH_RADIUS_IN_METERS,
           ],
         },
       },
@@ -64,13 +70,13 @@ export async function POST(request: Request) {
 
     const newLocation = new LocationModel({
       roomName,
-      radius,
+      radius: PUBLIC_ROOM_RADIUS_METERS,
       location: {
         type: "Point",
         coordinates: [longitude, latitude],
       },
       creatorId: user._id,
-      expiresAt: new Date(Date.now() + 60 * 60 * 1000),
+      expiresAt: new Date(Date.now() + PUBLIC_ROOM_TTL_MS),
     });
 
     await newLocation.save();

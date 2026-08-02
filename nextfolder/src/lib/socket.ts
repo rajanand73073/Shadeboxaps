@@ -5,6 +5,7 @@ import { PRIVATE_ROOM_DURATION_MS } from "./privateRoom";
 
 let socket: Socket<ServerToClientEvents, ClientToServerEvents> | null = null;
 let connectedRoomId: string | null = null;
+let connectedAnonyId: string | null = null;
 
 export interface identityKey {
   anonyId?: string;
@@ -15,8 +16,8 @@ export interface identityKey {
 
 export const identity: identityKey = {};
 
-export const getSocket = (roomId: string) => {
-  if (socket && connectedRoomId !== roomId) {
+export const getSocket = (roomId: string, anonyId = anonymousId(roomId)) => {
+  if (socket && (connectedRoomId !== roomId || connectedAnonyId !== anonyId)) {
     socket.disconnect();
     socket = null;
   }
@@ -31,10 +32,11 @@ export const getSocket = (roomId: string) => {
 
     socket = io(socketUrl, {
       auth: {
-        anonyId: anonymousId(roomId),
+        anonyId,
       },
     });
     connectedRoomId = roomId;
+    connectedAnonyId = anonyId;
   }
   return socket;
 };

@@ -2,13 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "../../../../lib/dbConnect";
 import LocationModel from "../../../../model/Location.model";
 
+const PUBLIC_ROOM_RADIUS_METERS = 5000;
+
 export async function GET(request: NextRequest) {
   await dbConnect();
 
   const searchParams = request.nextUrl.searchParams;
   const lat = Number(searchParams.get("lat"));
   const lng = Number(searchParams.get("lng"));
-  const radius = Number(searchParams.get("radius") || 5000);
 
   if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
     return NextResponse.json(
@@ -20,14 +21,18 @@ export async function GET(request: NextRequest) {
     );
   }
 
+  const now = new Date();
+  await LocationModel.deleteMany({ expiresAt: { $lte: now } });
+
   const rooms = await LocationModel.find({
+    expiresAt: { $gt: now },
     location: {
       $near: {
         $geometry: {
           type: "Point",
           coordinates: [lng, lat],
         },
-        $maxDistance: Number.isFinite(radius) && radius > 0 ? radius : 5000,
+        $maxDistance: PUBLIC_ROOM_RADIUS_METERS,
       },
     },
   }).limit(10);

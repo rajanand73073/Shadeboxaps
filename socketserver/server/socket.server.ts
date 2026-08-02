@@ -4,7 +4,7 @@ import client from "./lib/redisClient.js";
 let io: SocketIo; // Declare io variable globally bcoz const require value immediately
 
 const PRIVATE_ROOM_TTL_SECONDS = 5 * 60;
-const PUBLIC_ROOM_TTL_SECONDS = 5* 60;
+const PUBLIC_ROOM_TTL_SECONDS = 60 * 60;
 
 export function getIo(): SocketIo {
   if (!io) {
